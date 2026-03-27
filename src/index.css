@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 98%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 16 90% 54%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 55% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 40 25% 94%;
+    --muted-foreground: 220 12% 50%;
+
+    --accent: 40 90% 60%;
+    --accent-foreground: 220 25% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 18% 90%;
+    --input: 40 18% 88%;
+    --ring: 16 90% 54%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --nav-height: 4rem;
+
+    /* Custom design tokens */
+    --shadow-soft: 0 2px 16px -2px hsl(220 25% 10% / 0.06);
+    --shadow-card: 0 4px 24px -4px hsl(220 25% 10% / 0.08);
+    --shadow-elevated: 0 8px 40px -8px hsl(220 25% 10% / 0.12);
+    --gradient-hero: linear-gradient(135deg, hsl(16 90% 54% / 0.08), hsl(160 55% 40% / 0.06), hsl(40 90% 60% / 0.08));
+    --gradient-primary: linear-gradient(135deg, hsl(16 90% 54%), hsl(24 95% 58%));
+    --gradient-secondary: linear-gradient(135deg, hsl(160 55% 40%), hsl(165 60% 46%));
+  }
+
+  .dark {
+    --background: 220 20% 7%;
+    --foreground: 40 20% 95%;
+
+    --card: 220 18% 11%;
+    --card-foreground: 40 20% 95%;
+
+    --popover: 220 18% 11%;
+    --popover-foreground: 40 20% 95%;
+
+    --primary: 16 90% 54%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 55% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 16%;
+    --muted-foreground: 40 10% 58%;
+
+    --accent: 40 90% 60%;
+    --accent-foreground: 220 25% 10%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 16 90% 54%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --shadow-soft: 0 2px 16px -2px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 8px 40px -8px hsl(0 0% 0% / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-300;
+    box-shadow: var(--shadow-soft);
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+  }
+
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  /* Leaflet popup overrides */
+  .leaflet-popup-content-wrapper {
+    @apply !rounded-2xl !shadow-none border border-border;
+    box-shadow: var(--shadow-elevated) !important;
+  }
+
+  .leaflet-popup-content {
+    @apply !m-0 !p-0;
+  }
+
+  .leaflet-popup-tip {
+    box-shadow: var(--shadow-soft) !important;
+  }
+
+  /* Cluster overrides */
+  .marker-cluster-small,
+  .marker-cluster-medium,
+  .marker-cluster-large {
+    @apply !bg-primary/20;
+  }
+  .marker-cluster-small div,
+  .marker-cluster-medium div,
+  .marker-cluster-large div {
+    @apply !bg-primary !text-primary-foreground font-display font-bold !rounded-full;
+  }
+
+  /* Map marker bounce animation */
+  .map-marker-bounce {
+    animation: markerBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Custom marker no background */
+  .custom-map-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  /* Paw print background pattern */
+  .paw-bg {
+    position: relative;
+  }
+  .paw-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ctext x='20' y='50' font-size='28' fill='%23000'%3E🐾%3C/text%3E%3C/svg%3E");
+    background-size: 80px 80px;
+  }
+}
+
+@keyframes markerBounce {
+  0% { transform: scale(0) translateY(20px); opacity: 0; }
+  60% { transform: scale(1.1) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
