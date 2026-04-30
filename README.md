@@ -24,7 +24,7 @@ npm run dev
 
 # Definición de Ramas y Tareas – Proyecto Fullstack (Sanos y Salvos)
 
-## 🌿 feature/frontend-ui
+## 🌿 feature/frontend-ui Paz
 **Responsabilidad:** Capa de presentación (React + Vite + Tailwind)
 
 ### Vistas principales
@@ -62,7 +62,7 @@ npm run dev
 
 ---
 
-## ⚙️ feature/backend-usuarios
+## ⚙️ feature/backend-usuarios Guerben
 **Responsabilidad:** Microservicio de usuarios y autenticación
 
 ### Modelo y persistencia
@@ -90,7 +90,7 @@ npm run dev
 
 ---
 
-## 📊 feature/backend-reportes
+## 📊 feature/backend-reportes Guerben
 **Responsabilidad:** Microservicio principal del negocio
 
 ### Modelo de dominio
@@ -125,7 +125,7 @@ npm run dev
 
 ---
 
-## 🧠 feature/motor-coincidencias
+## 🧠 feature/motor-coincidencias Jordan
 **Responsabilidad:** Microservicio de matching (asíncrono)
 
 ### Consumo de eventos
@@ -153,7 +153,7 @@ npm run dev
 
 ---
 
-## 🔔 feature/notificaciones
+## 🔔 feature/notificaciones Jordan
 **Responsabilidad:** Microservicio de notificaciones
 
 ### Consumo de eventos
