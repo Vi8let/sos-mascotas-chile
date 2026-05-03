@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { reportService } from "@/services/reportService";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,11 +21,10 @@ export function MarkFoundButton({ reportId, isResolved }: MarkFoundButtonProps) 
   const handleMark = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("reports")
-        .update({ is_active: false, resolved_at: new Date().toISOString(), type: "found" as any })
-        .eq("id", reportId);
-      if (error) throw error;
+      // Reemplaza supabase.update por nuestro servicio
+      const response = await reportService.markAsFound(reportId);
+      if (!response.success) throw new Error("Fallo en el servicio");
+
       toast.success("🎉 ¡Mascota marcada como encontrada!");
       queryClient.invalidateQueries({ queryKey: ["report", reportId] });
       queryClient.invalidateQueries({ queryKey: ["all-reports"] });

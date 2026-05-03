@@ -1,12 +1,22 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+
+// TODO: Estos tipos son temporales para simular la estructura JWT.
+// Al migrar a Spring Boot, se recomienda usar los DTOs que provengan de tu API.
+export interface User {
+  id: string;
+  email: string;
+}
+
+export interface Session {
+  access_token: string;
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  // La firma mantiene compatibilidad hacia atrás. Se agrega name y phone opcionales.
+  signUp: (email: string, password: string, name?: string, phone?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -19,39 +29,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    // Al inicializar la app, verificamos si hay una sesión guardada.
+    const checkSession = async () => {
+      const token = localStorage.getItem("jwt_token");
+      if (token) {
+        // En producción, se debería hacer un GET /api/auth/me usando el token
+        // o leerlo desde la cookie HttpOnly sin consultar a localStorage.
+        
+        // Simulación: restauramos el usuario
+        const mockUser = {
+          id: "mock-uuid-1234-5678",
+          email: "usuario@ejemplo.com",
+        };
+        setUser(mockUser);
+        setSession({ access_token: token });
       }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
       setLoading(false);
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    checkSession();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    return { error: error as Error | null };
+  const signUp = async (email: string, password: string, name?: string, phone?: string) => {
+    try {
+      // Simular petición: await fetch("/api/auth/register", { method: 'POST', body: ... })
+      console.log("Simulando POST /api/auth/register", { email, password, name, phone });
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simula latencia
+      
+      // La regla pide que signUp no inicie sesión automáticamente.
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+    try {
+      // Simular petición: await fetch("/api/auth/login", { method: 'POST', body: ... })
+      console.log("Simulando POST /api/auth/login", { email, password });
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simula latencia
+      
+      // Simulación de respuesta del backend con JWT
+      const mockToken = "mock_jwt_token_" + Date.now();
+      const mockUser = {
+        id: "mock-uuid-1234-5678",
+        email: email,
+      };
+
+      // NOTA TEMPORAL: Para desarrollo se guarda el JWT en localStorage.
+      // En PRODUCCIÓN, es fuertemente recomendado manejar los JWT mediante cookies HttpOnly 
+      // configuradas directamente por el servidor (Spring Boot) por seguridad.
+      localStorage.setItem("jwt_token", mockToken);
+      
+      setSession({ access_token: mockToken });
+      setUser(mockUser);
+
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Simular petición a backend: await fetch("/api/auth/logout", { method: 'POST' })
+    localStorage.removeItem("jwt_token");
+    setSession(null);
+    setUser(null);
   };
 
   return (

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { petService } from "@/services/petService";
 import { useAuth } from "@/contexts/AuthContext";
 import { findOrCreateConversation } from "@/lib/messaging";
 import { format } from "date-fns";
@@ -42,42 +42,37 @@ export default function ReportDetail() {
   const { data: report, isLoading } = useQuery({
     queryKey: ["report", id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("reports").select("*").eq("id", id!).single();
-      if (error) throw error;
+      // Usar nuestro nuevo servicio desacoplado en vez de Supabase
+      const data = await petService.getPetById(id!);
       return data;
     },
     enabled: !!id,
   });
 
-  const { data: pet } = useQuery({
-    queryKey: ["report-pet", report?.pet_id],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("pets").select("*").eq("id", report!.pet_id!).single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!report?.pet_id,
-  });
+  // El backend propio (simulado) ya nos devuelve el objeto 'pets' anidado,
+  // por lo que no necesitamos un segundo fetch.
+  const pet = report?.pets as any;
 
+  // Mock del perfil del reportero (temporal, esto vendría del backend en el futuro)
   const { data: reporter } = useQuery({
     queryKey: ["report-profile", report?.user_id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", report!.user_id).single();
-      if (error) throw error;
-      return data;
+      await new Promise(r => setTimeout(r, 200));
+      return {
+        user_id: report!.user_id,
+        display_name: "Usuario Simulado",
+        reputation_points: 150
+      };
     },
     enabled: !!report?.user_id,
   });
 
+  // Mock de conteo de ayuda (temporal)
   const { data: reporterHelpCount = 0 } = useQuery({
     queryKey: ["reporter-help-count", report?.user_id],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("report_helpers")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", report!.user_id);
-      if (error) throw error;
-      return count ?? 0;
+      await new Promise(r => setTimeout(r, 200));
+      return 12;
     },
     enabled: !!report?.user_id,
   });

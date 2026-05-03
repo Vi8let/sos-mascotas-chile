@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { reportService } from "@/services/reportService";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -72,59 +72,37 @@ export default function ReportLost() {
 
     setSubmitting(true);
     try {
-      let photoUrl: string | null = null;
-      if (photo) {
-        const ext = photo.name.split(".").pop();
-        const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from("pet-photos")
-          .upload(path, photo);
-        if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage.from("pet-photos").getPublicUrl(path);
-        photoUrl = urlData.publicUrl;
-      }
-
       // Default coordinates for Santiago if none provided
       const lat = -33.45;
       const lng = -70.65;
       const city = form.city.trim() || "Sin especificar";
 
-      const { data: pet, error: petError } = await supabase
-        .from("pets")
-        .insert({
-          user_id: user.id,
-          name: form.petName.trim(),
-          species: form.species as PetSpecies,
-          breed: form.breed.trim() || null,
-          color: form.color.trim() || null,
-          description: form.description.trim() || null,
-          photos: photoUrl ? [photoUrl] : [],
-          status: "lost",
-          lost_date: form.dateLost || null,
-          latitude: lat,
-          longitude: lng,
-          city,
-          region: "Sin especificar",
-        })
-        .select("id")
-        .single();
-      if (petError) throw petError;
-
-      const { error: reportError } = await supabase.from("reports").insert({
-        user_id: user.id,
-        pet_id: pet.id,
-        type: "lost",
-        title: `Mascota perdida: ${form.petName.trim()}`,
+      // PREPARAR LOS DATOS PARA LA NUEVA API
+      // Enviamos toda la estructura consolidada para que el backend Spring Boot
+      // se encargue de guardar la foto, el Pet y el Report en una sola transacción.
+      const reportData = {
+        userId: user.id,
+        petName: form.petName.trim(),
+        species: form.species,
+        breed: form.breed.trim() || null,
+        color: form.color.trim() || null,
         description: form.description.trim() || null,
+        status: "lost",
+        lostDate: form.dateLost || null,
         latitude: lat,
         longitude: lng,
-        photos: photoUrl ? [photoUrl] : [],
-        city,
-        region: "Sin especificar",
+        city: city,
         address: form.address.trim() || null,
-        contact_phone: form.phone.trim() || null,
-      });
-      if (reportError) throw reportError;
+        contactPhone: form.phone.trim() || null,
+        photo: photo // En la API real, deberás enviar esto como FormData en el Servicio si es File
+      };
+
+      // Llamar al nuevo servicio en vez de hacer 3 peticiones de Supabase
+      const response = await reportService.createReport(reportData);
+      
+      if (!response.success) {
+        throw new Error("Error desconocido al crear el reporte");
+      }
 
       await queryClient.invalidateQueries({ queryKey: ["recent-reports"] });
       toast.success("¡Reporte publicado con éxito! 🐾");

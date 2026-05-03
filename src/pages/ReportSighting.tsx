@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { reportService } from "@/services/reportService";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { LocationPicker } from "@/components/map/LocationPicker";
 import { Eye, Loader2 } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
-
-type PetSpecies = Database["public"]["Enums"]["pet_species"];
+// Omitimos la importación de Database si no tenemos Supabase, pero mantendremos el type estático.
+type PetSpecies = "dog" | "cat" | "bird" | "rabbit" | "hamster" | "turtle" | "fish" | "other";
 
 const speciesOptions: { value: PetSpecies; label: string }[] = [
   { value: "dog", label: "Perro" },
@@ -53,34 +52,12 @@ export default function ReportSighting() {
 
     setSubmitting(true);
     try {
-      let photoUrl: string | null = null;
-      if (photo) {
-        const ext = photo.name.split(".").pop();
-        const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from("pet-photos")
-          .upload(path, photo);
-        if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage.from("pet-photos").getPublicUrl(path);
-        photoUrl = urlData.publicUrl;
-      }
-
-      const speciesLabel = form.species
-        ? speciesOptions.find((s) => s.value === form.species)?.label ?? form.species
-        : "Animal";
-
-      const { error } = await supabase.from("reports").insert({
-        user_id: user.id,
-        type: "sighting",
-        title: `Avistamiento: ${speciesLabel}`,
-        description: form.description.trim() || null,
-        latitude: location.lat,
-        longitude: location.lng,
-        photos: photoUrl ? [photoUrl] : [],
-        city: "Sin especificar",
-        region: "Sin especificar",
+      const response = await reportService.createSighting({
+        ...form,
+        location: location,
+        photo: photo
       });
-      if (error) throw error;
+      if (!response.success) throw new Error("Fallo en servicio mock");
 
       await queryClient.invalidateQueries({ queryKey: ["map-reports"] });
       toast.success("¡Avistamiento reportado con éxito!");

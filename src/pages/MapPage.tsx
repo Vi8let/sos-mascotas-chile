@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-import { supabase } from "@/integrations/supabase/client";
+import { petService } from "@/services/petService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -56,40 +56,43 @@ export default function MapPage() {
   const [selectedReport, setSelectedReport] = useState<any | null>(null);
   const [selectedVet, setSelectedVet] = useState<any | null>(null);
 
-  // ── Data ────────────────────────────────────────────────────────────
+  // ── Data (Migrado desde Supabase a service layer) ───────────────────
   const { data: reports = [] } = useQuery({
     queryKey: ["map-reports"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("reports").select("*").eq("is_active", true);
-      if (error) throw error;
-      return data;
+      const data = await petService.getPets();
+      // Función adaptadora para asegurar lat/lng (Preparado para backend Spring Boot)
+      return data.map((item: any) => ({
+        ...item,
+        latitude: item.latitude || -33.45, // Santiago por defecto
+        longitude: item.longitude || -70.65
+      }));
     },
   });
 
   const { data: clinics = [] } = useQuery({
     queryKey: ["map-clinics"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("vet_clinics").select("*");
-      if (error) throw error;
-      return data;
+      // Mock temporal hasta crear vetService
+      return [
+        { id: "v1", name: "Vet Mock", latitude: -33.44, longitude: -70.64 }
+      ];
     },
   });
 
   const { data: events = [] } = useQuery({
     queryKey: ["map-events"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("events").select("*").eq("is_approved", true);
-      if (error) throw error;
-      return data;
+      // Mock temporal
+      return [];
     },
   });
 
   const { data: colonies = [] } = useQuery({
     queryKey: ["map-colonies"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("cat_colonies").select("*");
-      if (error) throw error;
-      return data;
+      // Mock temporal
+      return [];
     },
   });
 

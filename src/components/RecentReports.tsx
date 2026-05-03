@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { petService } from "@/services/petService";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { Loader2, MapPin, PawPrint, Clock, ArrowRight } from "lucide-react";
@@ -53,14 +53,7 @@ export function RecentReports() {
   const { data: reports, isLoading } = useQuery({
     queryKey: ["recent-reports"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reports")
-        .select("*, pets(name, species, photos)")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(6);
-      if (error) throw error;
-      return data || [];
+      return await petService.getRecentReports();
     },
   });
 

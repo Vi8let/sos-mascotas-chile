@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { userService } from "@/services/userService";
 import { motion } from "framer-motion";
 import { User, Mail, MapPin, Star, PawPrint, ClipboardList, History } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -15,22 +15,17 @@ export default function UserProfile() {
   const { data: profile, isLoading } = useQuery({
     queryKey: ["my-profile", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", user!.id).single();
-      if (error) throw error;
-      return data;
+      return await userService.getUserProfile(user!.id);
     },
     enabled: !!user,
   });
 
+  // Mocks temporales para estadísticas (se implementarán en el backend)
   const { data: helpCount = 0 } = useQuery({
     queryKey: ["my-help-count", user?.id],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("report_helpers")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id);
-      if (error) throw error;
-      return count ?? 0;
+      await new Promise(r => setTimeout(r, 200));
+      return 5; // Mock
     },
     enabled: !!user,
   });
@@ -38,12 +33,8 @@ export default function UserProfile() {
   const { data: reportCount = 0 } = useQuery({
     queryKey: ["my-report-count", user?.id],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("reports")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id);
-      if (error) throw error;
-      return count ?? 0;
+      await new Promise(r => setTimeout(r, 200));
+      return 2; // Mock
     },
     enabled: !!user,
   });

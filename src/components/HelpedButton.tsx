@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { reportService } from "@/services/reportService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,27 +20,26 @@ export function HelpedButton({ reportId }: HelpedButtonProps) {
   const { data } = useQuery({
     queryKey: ["report-helpers", reportId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("report_helpers")
-        .select("id, user_id")
-        .eq("report_id", reportId);
-      if (error) throw error;
-      return data ?? [];
+      // Reemplaza llamada a Supabase por mock del servicio
+      return await reportService.getHelpers(reportId);
     },
   });
 
   const count = data?.length ?? 0;
-  const hasHelped = data?.some((h) => h.user_id === user?.id) ?? false;
+  // Supongamos que la estructura devuelta por el backend será { user_id: string }[]
+  const hasHelped = data?.some((h: any) => h.user_id === user?.id) ?? false;
 
   const handleToggle = async () => {
     if (!user) { navigate("/login"); return; }
     setLoading(true);
     try {
+      // Reemplaza supabase.delete/insert por nuestro servicio
+      const response = await reportService.markAsHelped(reportId, hasHelped);
+      if (!response.success) throw new Error("Error de red");
+
       if (hasHelped) {
-        await supabase.from("report_helpers").delete().eq("report_id", reportId).eq("user_id", user.id);
         toast.success("Se eliminó tu ayuda");
       } else {
-        await supabase.from("report_helpers").insert({ report_id: reportId, user_id: user.id });
         toast.success("¡Gracias por ayudar! 🐾");
       }
       queryClient.invalidateQueries({ queryKey: ["report-helpers", reportId] });

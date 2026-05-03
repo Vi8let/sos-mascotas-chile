@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { reportService } from "@/services/reportService";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -23,13 +23,7 @@ export default function ReportHistory() {
   const { data: myReports = [], isLoading: loadingMine } = useQuery({
     queryKey: ["my-reports", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reports")
-        .select("*, pets(name, species, photos)")
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
+      return await reportService.getUserReports(user?.id);
     },
     enabled: !!user,
   });
@@ -37,20 +31,9 @@ export default function ReportHistory() {
   const { data: helpedReports = [], isLoading: loadingHelped } = useQuery({
     queryKey: ["helped-reports", user?.id],
     queryFn: async () => {
-      const { data: helpers, error: hErr } = await supabase
-        .from("report_helpers")
-        .select("report_id")
-        .eq("user_id", user!.id);
-      if (hErr) throw hErr;
-      if (!helpers?.length) return [];
-      const ids = helpers.map((h) => h.report_id);
-      const { data, error } = await supabase
-        .from("reports")
-        .select("*, pets(name, species, photos)")
-        .in("id", ids)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
+      // Mock para reportes ayudados (en backend real sería otro endpoint)
+      await new Promise(r => setTimeout(r, 400));
+      return [];
     },
     enabled: !!user,
   });

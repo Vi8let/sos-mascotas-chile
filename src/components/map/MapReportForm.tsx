@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { reportService } from "@/services/reportService";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,51 +62,12 @@ export function MapReportForm({ lat, lng, onClose, onSubmitted }: MapReportFormP
 
     setSubmitting(true);
     try {
-      let photoUrl: string | null = null;
-      if (photo) {
-        const ext = photo.name.split(".").pop();
-        const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("pet-photos").upload(path, photo);
-        if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage.from("pet-photos").getPublicUrl(path);
-        photoUrl = urlData.publicUrl;
-      }
-
-      // Create pet
-      const { data: pet, error: petError } = await supabase
-        .from("pets")
-        .insert({
-          user_id: user.id,
-          name: form.petName.trim(),
-          species: form.species,
-          description: form.description.trim() || null,
-          photos: photoUrl ? [photoUrl] : [],
-          status: form.status === "lost" ? "lost" : "safe",
-          lost_date: form.status === "lost" ? new Date().toISOString() : null,
-          latitude: lat,
-          longitude: lng,
-          city: "Desde mapa",
-          region: "Sin especificar",
-        })
-        .select("id")
-        .single();
-      if (petError) throw petError;
-
-      // Create report
-      const { error: reportError } = await supabase.from("reports").insert({
-        user_id: user.id,
-        pet_id: pet.id,
-        type: form.status === "lost" ? "lost" : "sighting",
-        title: `${form.species === "dog" ? "Perro" : "Gato"} ${form.status === "lost" ? "perdido" : "avistado"}: ${form.petName.trim()}`,
-        description: form.description.trim() || null,
-        latitude: lat,
-        longitude: lng,
-        photos: photoUrl ? [photoUrl] : [],
-        city: "Desde mapa",
-        region: "Sin especificar",
-        contact_phone: form.phone.trim() || null,
+      const response = await reportService.createReport({
+        ...form,
+        location: { lat, lng },
+        photo: photo
       });
-      if (reportError) throw reportError;
+      if (!response.success) throw new Error("Error en servicio mock");
 
       onSubmitted();
     } catch (err: any) {

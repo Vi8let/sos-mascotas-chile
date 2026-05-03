@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { petService } from "@/services/petService";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -26,11 +26,8 @@ export default function Reports() {
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ["all-reports"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reports")
-        .select("*, pets(name, species, photos)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
+      // Reemplaza la consulta directa a Supabase por la llamada al nuevo servicio (Mock API)
+      const data = await petService.getPets();
       return data;
     },
   });
