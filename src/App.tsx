@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,9 +21,10 @@ import Events from "./pages/Events";
 import CatColonies from "./pages/CatColonies";
 import VetClinics from "./pages/VetClinics";
 import ReportDetail from "./pages/ReportDetail";
-import Messages from "./pages/Messages";
 import ReportHistory from "./pages/ReportHistory";
 import NotFound from "./pages/NotFound";
+
+const Messages = lazy(() => import("./pages/Messages"));
 
 const queryClient = new QueryClient();
 
@@ -50,7 +52,7 @@ const App = () => (
               <Route path="/reportar-perdido" element={<ProtectedRoute><ReportLost /></ProtectedRoute>} />
               <Route path="/reportar-avistamiento" element={<ProtectedRoute><ReportSighting /></ProtectedRoute>} />
               <Route path="/perfil" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-              <Route path="/mensajes" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+              <Route path="/mensajes" element={<ProtectedRoute><Suspense fallback={<div className="p-8 text-center">Cargando mensajes...</div>}><Messages /></Suspense></ProtectedRoute>} />
               <Route path="/historial" element={<ProtectedRoute><ReportHistory /></ProtectedRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Flag, Loader2 } from "lucide-react";
@@ -34,19 +33,9 @@ export function ReportFlagDialog({ reportId }: ReportFlagDialogProps) {
     if (!reason) { toast.error("Selecciona un motivo"); return; }
     setSending(true);
     try {
-      const { error } = await supabase.from("report_flags").insert({
-        report_id: reportId,
-        user_id: user.id,
-        reason,
-        details: details.trim() || null,
-      });
-      if (error) {
-        if (error.code === "23505") {
-          toast.info("Ya has reportado este reporte");
-        } else throw error;
-      } else {
-        toast.success("Reporte enviado a moderación");
-      }
+      // Mock para eliminar Supabase
+      await new Promise(resolve => setTimeout(resolve, 800));
+      toast.success("Reporte enviado a moderación");
       setOpen(false);
     } catch {
       toast.error("Error al enviar el reporte");

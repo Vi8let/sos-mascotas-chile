@@ -1,15 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { petService } from "@/services/petService";
 
 export function useMapData() {
   const reports = useQuery({
     queryKey: ["map-reports"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reports")
-        .select("*")
-        .eq("is_active", true);
-      if (error) throw error;
+      const data = await petService.getPets();
       return data;
     },
   });
@@ -17,27 +13,21 @@ export function useMapData() {
   const colonies = useQuery({
     queryKey: ["map-colonies"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("cat_colonies").select("*");
-      if (error) throw error;
-      return data;
+      return []; // MOCK
     },
   });
 
   const clinics = useQuery({
     queryKey: ["map-clinics"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("vet_clinics").select("*");
-      if (error) throw error;
-      return data;
+      return []; // MOCK
     },
   });
 
   const events = useQuery({
     queryKey: ["map-events"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("events").select("*");
-      if (error) throw error;
-      return data;
+      return []; // MOCK
     },
   });
 

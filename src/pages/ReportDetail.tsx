@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { petService } from "@/services/petService";
 import { useAuth } from "@/contexts/AuthContext";
-import { findOrCreateConversation } from "@/lib/messaging";
+// import { findOrCreateConversation } from "@/lib/messaging";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SightingChatDialog } from "@/components/SightingChatDialog";
+// import { SightingChatDialog } from "@/components/SightingChatDialog";
 import { MarkFoundButton } from "@/components/MarkFoundButton";
 import { HelpedButton } from "@/components/HelpedButton";
 import { ReportFlagDialog } from "@/components/ReportFlagDialog";
@@ -289,8 +289,11 @@ export default function ReportDetail() {
                 if (!user) { navigate("/login"); return; }
                 setContacting(true);
                 try {
-                  const convoId = await findOrCreateConversation(user.id, report.user_id);
-                  navigate(`/mensajes?c=${convoId}`);
+                  // MOCK
+                  await new Promise(r => setTimeout(r, 1000));
+                  // const convoId = await findOrCreateConversation(user.id, report.user_id);
+                  // navigate(`/mensajes?c=${convoId}`);
+                  toast.info("Mensajería deshabilitada durante la migración.");
                 } catch { toast.error("Error al iniciar conversación"); } finally { setContacting(false); }
               }}
             >
@@ -305,12 +308,13 @@ export default function ReportDetail() {
       </div>
 
       {report && (
-        <SightingChatDialog
-          open={sightingOpen}
-          onOpenChange={setSightingOpen}
-          reportTitle={report.title}
-          reportOwnerId={report.user_id}
-        />
+        // <SightingChatDialog
+        //   open={sightingOpen}
+        //   onOpenChange={setSightingOpen}
+        //   reportTitle={report.title}
+        //   reportOwnerId={report.user_id}
+        // />
+        <div />
       )}
     </div>
   );

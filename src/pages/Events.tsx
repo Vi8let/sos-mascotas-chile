@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,13 +23,8 @@ export default function Events() {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("is_approved", true)
-        .order("start_date", { ascending: true });
-      if (error) throw error;
-      return data;
+      // Mock para eliminar Supabase
+      return [];
     },
   });
 

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
-import { NotificationCenter } from "@/components/NotificationCenter";
+// import { NotificationCenter } from "@/components/NotificationCenter";
 
 const publicNavItems = [
   { path: "/", label: "Inicio", icon: Home },
@@ -75,7 +75,7 @@ export function Navigation() {
             })}
             {user ? (
               <>
-                <NotificationCenter />
+                {/* <NotificationCenter /> */}
                 <Button variant="ghost" size="sm" onClick={handleSignOut} className="ml-2 text-muted-foreground rounded-xl">
                   <LogOut className="mr-1 h-4 w-4" />
                   Salir

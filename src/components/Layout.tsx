@@ -1,13 +1,13 @@
 import { Outlet, Link } from "react-router-dom";
 import { Navigation } from "./Navigation";
-import { NearbyPetAlert } from "./NearbyPetAlert";
+// import { NearbyPetAlert } from "./NearbyPetAlert";
 import { PawPrint, Heart } from "lucide-react";
 
 export function Layout() {
   return (
     <div className="flex min-h-screen flex-col paw-bg">
       <Navigation />
-      <NearbyPetAlert />
+      {/* <NearbyPetAlert /> */}
       <main className="flex-1">
         <Outlet />
       </main>
