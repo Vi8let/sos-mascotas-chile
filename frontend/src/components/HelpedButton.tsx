@@ -20,7 +20,7 @@ export function HelpedButton({ reportId }: HelpedButtonProps) {
   const { data } = useQuery({
     queryKey: ["report-helpers", reportId],
     queryFn: async () => {
-      // Reemplaza llamada a Supabase por mock del servicio
+      // Reemplaza llamada original por mock del servicio
       return await reportService.getHelpers(reportId);
     },
   });
@@ -33,7 +33,7 @@ export function HelpedButton({ reportId }: HelpedButtonProps) {
     if (!user) { navigate("/login"); return; }
     setLoading(true);
     try {
-      // Reemplaza supabase.delete/insert por nuestro servicio
+      // Llamar a nuestro servicio
       const response = await reportService.markAsHelped(reportId, hasHelped);
       if (!response.success) throw new Error("Error de red");
 

@@ -2,7 +2,7 @@
 
 /**
  * SERVICIO TEMPORAL (MOCK)
- * Este servicio reemplazará supabase.from(...).insert(...) y el storage
+ * Este servicio reemplazará llamadas a la base de datos y el storage
  * Actualmente simula la petición POST a un backend propio preparado para usar JWT.
  */
 

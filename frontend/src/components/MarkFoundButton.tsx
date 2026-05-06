@@ -21,7 +21,7 @@ export function MarkFoundButton({ reportId, isResolved }: MarkFoundButtonProps) 
   const handleMark = async () => {
     setLoading(true);
     try {
-      // Reemplaza supabase.update por nuestro servicio
+      // Actualizar usando nuestro servicio
       const response = await reportService.markAsFound(reportId);
       if (!response.success) throw new Error("Fallo en el servicio");
 

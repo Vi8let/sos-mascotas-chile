@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { findOrCreateConversation } from "@/lib/messaging";
-import { supabase } from "@/integrations/supabase/client";
+
 import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
@@ -31,11 +31,8 @@ export function SightingChatDialog({ open, onOpenChange, reportTitle, reportOwne
     setSending(true);
     try {
       const convoId = await findOrCreateConversation(user.id, reportOwnerId);
-      await supabase.from("messages").insert({
-        conversation_id: convoId,
-        sender_id: user.id,
-        content: message.trim(),
-      });
+      // MOCK: Simular envío
+      await new Promise(res => setTimeout(res, 500));
       toast.success("Mensaje enviado al dueño");
       onOpenChange(false);
       navigate(`/mensajes?c=${convoId}`);

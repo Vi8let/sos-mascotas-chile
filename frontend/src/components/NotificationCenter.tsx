@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Bell, MessageCircle, Eye, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,87 +32,8 @@ export function NotificationCenter() {
     queryKey: ["notifications", user?.id],
     queryFn: async (): Promise<Notification[]> => {
       if (!user) return [];
-      const items: Notification[] = [];
-
-      // Get conversations user is part of
-      const { data: parts } = await supabase
-        .from("conversation_participants")
-        .select("conversation_id")
-        .eq("user_id", user.id);
-
-      if (parts?.length) {
-        const convoIds = parts.map((p) => p.conversation_id);
-
-        // Unread messages
-        const { data: unread } = await supabase
-          .from("messages")
-          .select("id, content, sender_id, conversation_id, created_at")
-          .in("conversation_id", convoIds)
-          .neq("sender_id", user.id)
-          .eq("is_read", false)
-          .order("created_at", { ascending: false })
-          .limit(10);
-
-        if (unread?.length) {
-          // Get sender profiles
-          const senderIds = [...new Set(unread.map((m) => m.sender_id))];
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, display_name")
-            .in("user_id", senderIds);
-          const profileMap = new Map(profiles?.map((p) => [p.user_id, p.display_name]) ?? []);
-
-          for (const msg of unread) {
-            items.push({
-              id: msg.id,
-              type: "message",
-              title: `💬 ${profileMap.get(msg.sender_id) ?? "Usuario"}`,
-              body: msg.content.length > 60 ? msg.content.slice(0, 60) + "…" : msg.content,
-              link: `/mensajes?c=${msg.conversation_id}`,
-              createdAt: msg.created_at,
-              read: false,
-            });
-          }
-        }
-      }
-
-      // Recent sightings on user's reports
-      const { data: myReports } = await supabase
-        .from("reports")
-        .select("id, title")
-        .eq("user_id", user.id)
-        .eq("type", "lost");
-
-      if (myReports?.length) {
-        const reportIds = myReports.map((r) => r.id);
-        const reportMap = new Map(myReports.map((r) => [r.id, r.title]));
-
-        // Find sightings near the user's lost reports (same city)
-        const { data: sightings } = await supabase
-          .from("reports")
-          .select("id, title, created_at, city")
-          .eq("type", "sighting")
-          .eq("is_active", true)
-          .neq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(5);
-
-        if (sightings?.length) {
-          for (const s of sightings) {
-            items.push({
-              id: `sighting-${s.id}`,
-              type: "sighting",
-              title: "👁️ Posible avistamiento",
-              body: s.title,
-              link: `/reporte/${s.id}`,
-              createdAt: s.created_at,
-              read: false,
-            });
-          }
-        }
-      }
-
-      return items.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1)).slice(0, 15);
+      // MOCK
+      return [];
     },
     enabled: !!user,
     refetchInterval: 30000,
@@ -121,43 +41,7 @@ export function NotificationCenter() {
 
   // Realtime subscription for new messages
   useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel("notification-messages")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
-        (payload) => {
-          const msg = payload.new as any;
-          if (msg.sender_id !== user.id) {
-            queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-            // Browser push notification
-            if (Notification.permission === "granted") {
-              new Notification("💬 Nuevo mensaje en SOS Mascotas", {
-                body: msg.content?.slice(0, 100),
-                icon: "/favicon.ico",
-              });
-            }
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "reports", filter: "type=eq.sighting" },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-          if (Notification.permission === "granted") {
-            new Notification("👁️ Nuevo avistamiento reportado", {
-              body: "Alguien ha reportado un avistamiento cerca.",
-              icon: "/favicon.ico",
-            });
-          }
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    // MOCK: Eliminado el realtime de supabase
   }, [user, queryClient]);
 
   // Ask for notification permission on mount
@@ -176,9 +60,8 @@ export function NotificationCenter() {
   const handleClick = (notif: Notification) => {
     // Mark messages as read
     if (notif.type === "message") {
-      supabase.from("messages").update({ is_read: true }).eq("id", notif.id).then(() => {
-        queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
-      });
+      // MOCK: no hacemos la llamada a supabase
+      queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
     }
     navigate(notif.link);
     setOpen(false);

@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { X, MapPin, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +36,7 @@ export function NearbyPetAlert() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {},
+      () => { },
       { enableHighAccuracy: false, timeout: 5000 }
     );
   }, []);
@@ -45,15 +44,8 @@ export function NearbyPetAlert() {
   const checkNearby = useCallback(async () => {
     if (!userPos) return;
 
-    const since = lastCheckRef.current || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data } = await supabase
-      .from("reports")
-      .select("id, title, photos, latitude, longitude, type, created_at")
-      .eq("is_active", true)
-      .eq("type", "lost")
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(10);
+    // TODO: Usar el servicio real
+    const data: any[] = []; // Mock vacio por ahora
 
     lastCheckRef.current = new Date().toISOString();
 

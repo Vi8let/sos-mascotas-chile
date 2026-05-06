@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,54 +25,8 @@ export default function Messages() {
   const { data: conversations = [], isLoading: loadingConvos } = useQuery({
     queryKey: ["my-conversations", user?.id],
     queryFn: async () => {
-      const { data: parts } = await supabase
-        .from("conversation_participants")
-        .select("conversation_id")
-        .eq("user_id", user!.id);
-      if (!parts?.length) return [];
-
-      const convoIds = parts.map((p) => p.conversation_id);
-
-      // Get other participants' profiles
-      const { data: allParts } = await supabase
-        .from("conversation_participants")
-        .select("conversation_id, user_id")
-        .in("conversation_id", convoIds)
-        .neq("user_id", user!.id);
-
-      const otherUserIds = [...new Set(allParts?.map((p) => p.user_id) ?? [])];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, avatar_url")
-        .in("user_id", otherUserIds);
-
-      const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
-
-      // Get last message per convo
-      const convos = await Promise.all(
-        convoIds.map(async (cid) => {
-          const otherPart = allParts?.find((p) => p.conversation_id === cid);
-          const profile = otherPart ? profileMap.get(otherPart.user_id) : null;
-
-          const { data: lastMsg } = await supabase
-            .from("messages")
-            .select("content, created_at")
-            .eq("conversation_id", cid)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .single();
-
-          return {
-            id: cid,
-            otherName: profile?.display_name ?? "Usuario",
-            otherAvatar: profile?.avatar_url,
-            lastMessage: lastMsg?.content ?? "",
-            lastAt: lastMsg?.created_at ?? "",
-          };
-        })
-      );
-
-      return convos.sort((a, b) => (b.lastAt > a.lastAt ? 1 : -1));
+      // MOCK
+      return [];
     },
     enabled: !!user,
   });
@@ -82,41 +35,15 @@ export default function Messages() {
   const { data: messages = [], isLoading: loadingMsgs } = useQuery({
     queryKey: ["messages", activeConvoId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("conversation_id", activeConvoId!)
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      return data;
+      // MOCK
+      return [];
     },
     enabled: !!activeConvoId,
   });
 
   // Realtime subscription
   useEffect(() => {
-    if (!activeConvoId) return;
-
-    const channel = supabase
-      .channel(`messages-${activeConvoId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${activeConvoId}`,
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["messages", activeConvoId] });
-          queryClient.invalidateQueries({ queryKey: ["my-conversations"] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // MOCK
   }, [activeConvoId, queryClient]);
 
   // Scroll to bottom on new messages
@@ -128,11 +55,8 @@ export default function Messages() {
     if (!message.trim() || !activeConvoId || !user) return;
     setSending(true);
     try {
-      await supabase.from("messages").insert({
-        conversation_id: activeConvoId,
-        sender_id: user.id,
-        content: message.trim(),
-      });
+      // MOCK
+      await new Promise(res => setTimeout(res, 300));
       setMessage("");
     } finally {
       setSending(false);

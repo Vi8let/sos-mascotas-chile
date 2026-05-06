@@ -12,9 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertTriangle, Loader2, Upload, PawPrint } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
-
-type PetSpecies = Database["public"]["Enums"]["pet_species"];
+type PetSpecies = "dog" | "cat" | "bird" | "rabbit" | "hamster" | "turtle" | "fish" | "other";
 
 const speciesOptions: { value: PetSpecies; label: string; emoji: string }[] = [
   { value: "dog", label: "Perro", emoji: "🐶" },
@@ -99,7 +97,7 @@ export default function ReportLost() {
 
       // Llamar al nuevo servicio en vez de hacer 3 peticiones de Supabase
       const response = await reportService.createReport(reportData);
-      
+
       if (!response.success) {
         throw new Error("Error desconocido al crear el reporte");
       }

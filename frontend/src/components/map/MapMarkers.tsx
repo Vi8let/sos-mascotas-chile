@@ -1,6 +1,5 @@
 import { Marker } from "react-leaflet";
 import L from "leaflet";
-import type { Tables } from "@/integrations/supabase/types";
 
 const createIcon = (emoji: string, color: string, opacity = 1) =>
   L.divIcon({
@@ -21,10 +20,10 @@ const icons = {
 };
 
 interface MapMarkersProps {
-  reports: Tables<"reports">[];
-  colonies: Tables<"cat_colonies">[];
-  clinics: Tables<"vet_clinics">[];
-  events: Tables<"events">[];
+  reports: any[];
+  colonies: any[];
+  clinics: any[];
+  events: any[];
 }
 
 export function MapMarkers({ reports, colonies, clinics, events }: MapMarkersProps) {
