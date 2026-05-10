@@ -14,7 +14,7 @@ const notificacionesSimuladas = [];
  */
 export const crearNotificacionMatch = (usuarioId, mascotaNombre, puntaje) => {
     const nuevaNotificacion = {
-        id: self.crypto ? crypto.randomUUID() : Math.random().toString(36).substring(7),
+        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(7),
         usuarioId: usuarioId,
         titulo: "¡Buenas noticias! Posible coincidencia",
         mensaje: `Tu reporte de "${mascotaNombre}" tiene una coincidencia del ${puntaje}% con un nuevo avistamiento.`,

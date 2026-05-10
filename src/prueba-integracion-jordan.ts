@@ -18,7 +18,7 @@ const mascotaPerdida = {
         colorPrimario: "Dorado",
         nombre: "Bobby"
     },
-    ubicacion: { latituditud: -33.4489, longitud: -70.6693 },
+    ubicacion: { latitud: -33.4489, longitud: -70.6693 },
     fechaSuceso: "2024-05-01T12:00:00Z"
 };
 
@@ -30,7 +30,7 @@ const mascotaAvistada = {
         raza: "Labrador",
         colorPrimario: "Dorado"
     },
-    ubicacion: { latituditud: -33.4500, longitud: -70.6685 },
+    ubicacion: { latitud: -33.4500, longitud: -70.6685 },
     fechaSuceso: "2024-05-02T10:00:00Z"
 };
 
@@ -39,7 +39,7 @@ const scoreFinal = calcularPuntaje(mascotaPerdida, mascotaAvistada);
 console.log(`📍 Resultado del Matching: ${scoreFinal}% de coincidencia.`);
 
 // 2. Lógica de Negocio: Notificar solo si es mayor al 70%
-if (scoreFinal > 70) {
+if (scoreFinal >= 70) {
     console.log("✅ Umbral superado. Generando alerta para el dueño...");
     crearNotificacionMatch(
         mascotaPerdida.usuarioId, 
