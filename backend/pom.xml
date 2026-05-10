@@ -28,10 +28,14 @@
 	</scm>
 	<properties>
 		<java.version>26</java.version>
-		<spring-cloud.version>2025.0.2</spring-cloud.version>
-		<tanzu-scg-extensions.version>1.0.1</tanzu-scg-extensions.version>
 	</properties>
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -44,22 +48,30 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<!--
+
 		<dependency>
-			<groupId>com.vmware.tanzu.springcloudgateway.extensions</groupId>
-			<artifactId>access-control</artifactId>
-			<version>${tanzu-scg-extensions.version}</version>
-		</dependency>
-		-->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
+		<!-- SQLite for development -->
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.45.1.0</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- PostgreSQL for production/Docker -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+		<!-- Hibernate dialects -->
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-community-dialects</artifactId>
+			<version>6.4.4.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -76,19 +88,24 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.6</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>
