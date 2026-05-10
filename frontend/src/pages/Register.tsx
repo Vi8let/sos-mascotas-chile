@@ -12,6 +12,8 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
 
@@ -20,7 +22,7 @@ export default function Register() {
     if (password !== confirmPassword) { toast.error("Las contraseñas no coinciden"); return; }
     if (password.length < 6) { toast.error("La contraseña debe tener al menos 6 caracteres"); return; }
     setLoading(true);
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, nombre, telefono);
     setLoading(false);
     if (error) {
       toast.error("Error al registrarse", { description: error.message });
@@ -41,6 +43,14 @@ export default function Register() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4 px-8">
+            <div className="space-y-2">
+              <Label htmlFor="nombre">Nombre completo</Label>
+              <Input id="nombre" type="text" placeholder="Juan Pérez" value={nombre} onChange={(e) => setNombre(e.target.value)} required className="rounded-xl h-11" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="telefono">Teléfono</Label>
+              <Input id="telefono" type="tel" placeholder="+56 9 1234 5678" value={telefono} onChange={(e) => setTelefono(e.target.value)} required className="rounded-xl h-11" />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Correo electrónico</Label>
               <Input id="email" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="rounded-xl h-11" />
