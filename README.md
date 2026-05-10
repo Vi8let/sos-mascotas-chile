@@ -27,9 +27,22 @@ Para validar esta versión, sigue estos pasos:
     - Ejecuta `npm install` y luego `npm run dev`.
     - Accede a `http://localhost:5173`.
 
-3.  **Flujo de Prueba:**
-    - Ve a la página de **Registro** y crea un usuario nuevo.
-    - Verifica en el log del backend que el usuario se guardó correctamente.
-    - Intenta hacer **Login** con las credenciales creadas.
+3.  **Ejecutar Simulación de Inteligencia (Matching):**
+    - Abre una tercera terminal.
+    - Ejecuta:
+    ```powershell
+    cd frontend
+    npx tsx src/prueba-integracion-jordan.ts
+    ```
+
+### ✅ Deberías ver como resultado:
+Al ejecutar la simulación, la terminal debería mostrar un log similar a este:
+```text
+🚀 Iniciando Simulación de Integración - SOS Mascotas Chile
+📍 Resultado del Matching: 100% de coincidencia.
+✅ Umbral superado. Generando alerta para el dueño...
+🔔 Bandeja de entrada del usuario: (Se muestra tabla con la notificación para 'Bobby')
+✅ Simulación completada con éxito.
+```
 
 ---
