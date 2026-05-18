@@ -58,7 +58,7 @@ public class AuthService {
         if (!jwtUtil.isValid(token, user))
             throw new SecurityException("Token invalido o expirado");
 
-        return new UserInfoResponse(user.getId(), user.getEmail(), user.getNombre(), user.getRole());
+        return new UserInfoResponse(user.getId(), user.getEmail(), user.getNombre(), user.getRole().name());
         
     }
 

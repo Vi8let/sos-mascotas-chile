@@ -4,6 +4,116 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ---
 
+## Version 1.6 - Avance Guerben: Gateway y reportes
+
+Esta version integra el avance de la rama `Guerben-dev` sobre la base preparada en `v1.5`.
+
+### Estado actual
+
+- El proyecto tiene tres partes ejecutables: `frontend`, `backend` y `gateway`.
+- El `gateway` corre en `http://localhost:9000` y actua como API Gateway.
+- El `backend` corre en `http://localhost:8090` y mantiene autenticacion, usuarios y reportes.
+- El frontend corre en `http://localhost:8080` y usa el proxy `/api` de Vite para pasar por el Gateway.
+- El modulo de reportes expone endpoints bajo `/api/reports`.
+- Las alertas y el motor de coincidencias siguen en frontend como modulos simulados/probados.
+
+### Arquitectura local
+
+```text
+Frontend (8080)
+-> Vite proxy /api
+-> API Gateway (9000)
+-> Backend principal (8090)
+-> SQLite db/sos_mascotas.db
+```
+
+### Como ejecutar
+
+Backend:
+
+```powershell
+cd backend
+.\mvnw.cmd spring-boot:run
+```
+
+Gateway:
+
+```powershell
+cd gateway
+..\backend\mvnw.cmd spring-boot:run
+```
+
+Frontend:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+URLs:
+
+```text
+Frontend: http://localhost:8080
+Gateway:  http://localhost:9000
+Backend:  http://localhost:8090
+```
+
+### Pruebas verificadas
+
+```powershell
+cd backend
+.\mvnw.cmd test
+
+cd ..\gateway
+..\backend\mvnw.cmd test
+
+cd ..\frontend
+npm test -- --run
+npm run build
+```
+
+Resultado verificado:
+
+- Backend: 2 tests OK.
+- Gateway: 3 tests OK.
+- Frontend: 12 tests OK.
+- Frontend build: OK, con advertencia normal de chunk grande de Vite.
+- Prueba manual por Gateway: registro, login, bloqueo de `/api/reports` sin token y creacion de reporte con token.
+- Prueba visual frontend: carga inicial, registro con toast de exito y login con navegacion autenticada.
+
+### Evidencia de version
+
+- Rama de trabajo local: `fix/guerben-dev-integracion`.
+- Rama base revisada: `origin/Guerben-dev`.
+- Commit de integracion: `fix: integra gateway y reportes de Guerben` en la punta de la rama local.
+- Tag local: `v1.6-avance-guerben-microservicios`.
+- Tag anterior de referencia: `v1.5-cierre-integracion-microservicios`.
+
+### Cambios integrados desde Guerben-dev
+
+- Se agrego `gateway/` con Spring Cloud Gateway.
+- Se agrego modulo de reportes en backend: modelo, repositorio, servicio, controlador y DTOs.
+- Se movio el backend al puerto `8090`.
+- Se dejo el Gateway en el puerto `9000`.
+- Se sincronizo el secreto JWT entre backend y Gateway.
+- Se agrego coleccion Postman.
+- Se corrigieron rutas antiguas hardcodeadas del Gateway.
+- Se corrigio CORS para el frontend local.
+- Se agregaron pruebas basicas para `ReportService` y `AuthGatewayFilter`.
+- Se elimino `gateway/target` del control de versiones y se agrego `target` a `.gitignore`.
+
+### Archivos utiles para seguir
+
+- `frontend/src/contrato-eventos.md`
+- `frontend/src/motor-coincidencias/algoritmo-puntuacion.ts`
+- `frontend/src/servicio-notificaciones/gestor-alertas.ts`
+- `backend/src/main/java/sos_mascotas/backend/controller/AuthController.java`
+- `backend/src/main/java/sos_mascotas/backend/controller/ReportController.java`
+- `gateway/src/main/resources/application.yml`
+
+---
+
 ## Version 1.5 - Cierre de integracion para agregar microservicios
 
 Deje esta parte lista para que el equipo pueda seguir agregando microservicios sin mezclar el trabajo del motor de coincidencias con otras tareas.
@@ -11,9 +121,18 @@ Deje esta parte lista para que el equipo pueda seguir agregando microservicios s
 ### Estado actual
 
 - El frontend ya apunta al backend de autenticacion en `http://localhost:8081/api/auth`.
-- El motor de coincidencias quedo separado por estrategias.
+
+# Definición de Ramas y Tareas – Proyecto Fullstack (Sanos y Salvos)
 - Las alertas siguen siendo simuladas, pero ya tienen pruebas de prioridad, lectura y usuarios sin notificaciones.
 - La simulacion completa sigue en `frontend/src/prueba-integracion-jordan.ts`.
+
+### Cambios introducidos en la rama **Guerben-dev**
+- **Gateway**: todas las peticiones ahora pasan por `http://localhost:9000`; rutas de reports apuntan al backend `:8090`.
+- **Postman**: Base URL actualizada a `http://localhost:9000` y valores de enum corregidos (`ANIMAL_PERDIDO`, `OBJETO_PERDIDO`, `ENCONTRADO`).
+- **JWT**: secreto sincronizado entre gateway y backend.
+- **Java**: versión actualizada a 21 en ambos módulos.
+- **Spring Boot**: versión bajada a `3.2.5` para compatibilidad con Spring Cloud 2023.0.3.
+- **pom.xml**: dependencias y plugins actualizados en gateway y backend.
 
 ### Archivos utiles para seguir
 
