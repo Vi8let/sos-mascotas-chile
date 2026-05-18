@@ -47,7 +47,7 @@ public class AuthController {
     public ResponseEntity<UserInfoResponse> me(
         @AuthenticationPrincipal User user) {
             return ResponseEntity.ok(
-                new UserInfoResponse(user.getId(), user.getEmail(), user.getNombre(), user.getRole()));
+                new UserInfoResponse(user.getId(), user.getEmail(), user.getNombre(), user.getRole().name()));
         }
 
 }

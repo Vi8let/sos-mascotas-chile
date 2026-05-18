@@ -1,0 +1,5 @@
+# Ignore database files but keep the directory
+*.db
+*.db-shm
+*.db-wal
+!.gitignore

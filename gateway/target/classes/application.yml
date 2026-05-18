@@ -1,0 +1,20 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/auth/**
+        - id: report-service
+          uri: http://localhost:8091
+          predicates:
+            - Path=/api/reports/**
+
+jwt:
+  secret: TuClaveSecretaMuyLargaDeAlMenos256BitsEnBase64==
