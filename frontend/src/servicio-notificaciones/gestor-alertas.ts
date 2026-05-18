@@ -1,49 +1,57 @@
 /**
- * Gestor de Alertas y Notificaciones.
+ * Gestor de alertas y notificaciones.
  * Encargado de crear y administrar los avisos para los usuarios.
  */
 
-// Base de datos simulada para el estado de las notificaciones
-const notificacionesSimuladas = [];
+interface NotificacionSimulada {
+  id: string;
+  usuarioId: string;
+  titulo: string;
+  mensaje: string;
+  fecha: string;
+  leida: boolean;
+  prioridad: "ALTA" | "MEDIA";
+}
+
+const notificacionesSimuladas: NotificacionSimulada[] = [];
 
 /**
- * Crea una notificación de coincidencia basada en el puntaje del motor.
- * @param {string} usuarioId - ID del dueño del reporte.
- * @param {string} mascotaNombre - Nombre o descripción breve de la mascota.
- * @param {number} puntaje - Resultado del algoritmo de matching.
+ * Crea una notificacion de coincidencia basada en el puntaje del motor.
  */
-export const crearNotificacionMatch = (usuarioId, mascotaNombre, puntaje) => {
-    const nuevaNotificacion = {
-        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(7),
-        usuarioId: usuarioId,
-        titulo: "¡Buenas noticias! Posible coincidencia",
-        mensaje: `Tu reporte de "${mascotaNombre}" tiene una coincidencia del ${puntaje}% con un nuevo avistamiento.`,
-        fecha: new Date().toISOString(),
-        leida: false,
-        prioridad: puntaje > 85 ? 'ALTA' : 'MEDIA'
-    };
+export const crearNotificacionMatch = (usuarioId: string, mascotaNombre: string, puntaje: number) => {
+  const nuevaNotificacion: NotificacionSimulada = {
+    id:
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(7),
+    usuarioId,
+    titulo: "Buenas noticias! Posible coincidencia",
+    mensaje: `Tu reporte de "${mascotaNombre}" tiene una coincidencia del ${puntaje}% con un nuevo avistamiento.`,
+    fecha: new Date().toISOString(),
+    leida: false,
+    prioridad: puntaje > 85 ? "ALTA" : "MEDIA",
+  };
 
-    notificacionesSimuladas.push(nuevaNotificacion);
-    
-    // Log para verificar el flujo en la consola de evaluación
-    console.log(`[ServicioNotificaciones] Alerta creada para Usuario ${usuarioId} con score ${puntaje}`);
-    
-    return nuevaNotificacion;
+  notificacionesSimuladas.push(nuevaNotificacion);
+
+  console.log(`[ServicioNotificaciones] Alerta creada para Usuario ${usuarioId} con score ${puntaje}`);
+
+  return nuevaNotificacion;
 };
 
 /**
- * Recupera todas las notificaciones de un usuario específico.
+ * Recupera todas las notificaciones de un usuario especifico.
  */
-export const obtenerNotificaciones = (usuarioId) => {
-    return notificacionesSimuladas.filter(n => n.usuarioId === usuarioId);
+export const obtenerNotificaciones = (usuarioId: string) => {
+  return notificacionesSimuladas.filter((notificacion) => notificacion.usuarioId === usuarioId);
 };
 
 /**
- * Cambia el estado de una notificación a 'leída'.
+ * Cambia el estado de una notificacion a leida.
  */
-export const marcarLeida = (id) => {
-    const index = notificacionesSimuladas.findIndex(n => n.id === id);
-    if (index !== -1) {
-        notificacionesSimuladas[index].leida = true;
-    }
+export const marcarLeida = (id: string) => {
+  const index = notificacionesSimuladas.findIndex((notificacion) => notificacion.id === id);
+  if (index !== -1) {
+    notificacionesSimuladas[index].leida = true;
+  }
 };

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { authService } from "../services/authService";
 
 export interface User {
-  id: string; // En el backend real se mapea al ID del usuario
+  id: string;
   email: string;
   nombre?: string;
   role?: string;
@@ -32,9 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkSession = async () => {
       const token = localStorage.getItem("jwt_token");
       const userEmail = localStorage.getItem("user_email");
-      
+
       if (token && userEmail) {
-        // Restauramos sesión mínima. Idealmente llamar a /api/auth/me
+        // Restauramos sesion minima. Idealmente llamar a /api/auth/me.
         setUser({ id: "stored", email: userEmail });
         setSession({ access_token: token });
       }
@@ -57,10 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       const data = await authService.login(email, password);
-      
+
       localStorage.setItem("jwt_token", data.token);
       localStorage.setItem("user_email", data.email);
-      
+
       setSession({ access_token: data.token });
       setUser({ id: "logged", email: data.email, role: data.role });
 

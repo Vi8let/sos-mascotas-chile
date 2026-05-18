@@ -4,6 +4,39 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ---
 
+## Version 1.2 - Configuracion e integracion corregida
+
+Esta version ajusta detalles tecnicos de la integracion inicial para que el frontend, backend y documentacion apunten al mismo flujo.
+
+### Cambios principales
+
+- Se alinea el servicio de autenticacion del frontend con el puerto real del backend: `8081`.
+- Se limpian textos rotos por codificacion en los archivos principales de integracion.
+- Se mantienen los mensajes de la simulacion en formato ASCII para evitar problemas de visualizacion.
+- Se actualiza la documentacion para reflejar la configuracion actual.
+
+### Configuracion actual de servicios
+
+Backend:
+
+```text
+http://localhost:8081
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+Endpoint base de autenticacion usado por el frontend:
+
+```text
+http://localhost:8081/api/auth
+```
+
+---
+
 ## Version 1.1 - Documentacion de integracion inicial
 
 Esta version ordena la documentacion de la rama `Develop` para dejar claro que contiene la integracion actual del proyecto y como se relacionan sus partes principales.
@@ -129,12 +162,24 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
+El backend queda disponible en:
+
+```text
+http://localhost:8081
+```
+
 Frontend:
 
 ```powershell
 cd frontend
 npm install
 npm run dev
+```
+
+El frontend queda disponible en:
+
+```text
+http://localhost:5173
 ```
 
 Simulacion de matching:
@@ -153,4 +198,3 @@ Umbral superado. Generando alerta para el dueno.
 Bandeja de entrada del usuario con la notificacion generada.
 Simulacion completada con exito.
 ```
-
