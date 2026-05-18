@@ -186,3 +186,13 @@ npm run dev
 - `backend-usuarios` → gestiona autenticación  
 
 ---
+## Versión 1.5 (branch develop)
+
+### Cambios realizados
+- **Gateway**: ahora todas las peticiones pasan por `http://localhost:9000`; rutas de reports apuntan al backend `:8090`.
+- **Base URL en Postman** actualizada a `http://localhost:9000`.
+- **Enum values** corregidos en la colección Postman (`ANIMAL_PERDIDO`, `OBJETO_PERDIDO`, `ENCONTRADO`).
+- **JWT secret** sincronizado entre gateway y backend.
+- **Java version** cambiada a 21 en ambos módulos.
+- **Spring Boot** versión bajada a `3.2.5` para compatibilidad con Spring Cloud.
+- **pom.xml** de gateway y backend actualizados.

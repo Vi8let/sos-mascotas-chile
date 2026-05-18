@@ -12,9 +12,9 @@ spring:
           predicates:
             - Path=/api/auth/**
         - id: report-service
-          uri: http://localhost:8091
+          uri: http://localhost:8090
           predicates:
             - Path=/api/reports/**
 
 jwt:
-  secret: TuClaveSecretaMuyLargaDeAlMenos256BitsEnBase64==
+  secret: SOSMascotasChileSecretKeyFor256BitHMACEncryptionBase64EncodedValue1234567890AB
