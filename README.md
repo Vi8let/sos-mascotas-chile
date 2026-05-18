@@ -11,9 +11,18 @@ Deje esta parte lista para que el equipo pueda seguir agregando microservicios s
 ### Estado actual
 
 - El frontend ya apunta al backend de autenticacion en `http://localhost:8081/api/auth`.
-- El motor de coincidencias quedo separado por estrategias.
+
+# Definición de Ramas y Tareas – Proyecto Fullstack (Sanos y Salvos)
 - Las alertas siguen siendo simuladas, pero ya tienen pruebas de prioridad, lectura y usuarios sin notificaciones.
 - La simulacion completa sigue en `frontend/src/prueba-integracion-jordan.ts`.
+
+### Cambios introducidos en la rama **Guerben-dev**
+- **Gateway**: todas las peticiones ahora pasan por `http://localhost:9000`; rutas de reports apuntan al backend `:8090`.
+- **Postman**: Base URL actualizada a `http://localhost:9000` y valores de enum corregidos (`ANIMAL_PERDIDO`, `OBJETO_PERDIDO`, `ENCONTRADO`).
+- **JWT**: secreto sincronizado entre gateway y backend.
+- **Java**: versión actualizada a 21 en ambos módulos.
+- **Spring Boot**: versión bajada a `3.2.5` para compatibilidad con Spring Cloud 2023.0.3.
+- **pom.xml**: dependencias y plugins actualizados en gateway y backend.
 
 ### Archivos utiles para seguir
 

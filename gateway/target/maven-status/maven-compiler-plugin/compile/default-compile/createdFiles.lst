@@ -1,0 +1,4 @@
+sos_mascotas\gateway\config\GatewayRoutesConfig.class
+sos_mascotas\gateway\filter\AuthGatewayFilter.class
+sos_mascotas\gateway\GatewayApplication.class
+sos_mascotas\gateway\util\JwtUtil.class
