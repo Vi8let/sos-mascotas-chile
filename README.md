@@ -4,6 +4,28 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ---
 
+## Version 1.5 - Cierre de integracion para agregar microservicios
+
+Esta version deja la rama `Develop` preparada para que el equipo conecte o agregue nuevos microservicios sobre una base estable.
+
+### Estado listo para continuar
+
+- Frontend conectado al backend de autenticacion en `http://localhost:8081/api/auth`.
+- Motor de coincidencias separado por estrategias y cubierto con pruebas unitarias.
+- Servicio de alertas simulado con pruebas de prioridad, lectura y usuarios sin notificaciones.
+- Simulacion de flujo disponible en `frontend/src/prueba-integracion-jordan.ts`.
+
+### Siguiente integracion esperada
+
+Los proximos microservicios pueden conectarse usando como referencia:
+
+- `frontend/src/contrato-eventos.md`
+- `frontend/src/motor-coincidencias/algoritmo-puntuacion.ts`
+- `frontend/src/servicio-notificaciones/gestor-alertas.ts`
+- `backend/src/main/java/sos_mascotas/backend/controller/AuthController.java`
+
+---
+
 ## Version 1.4 - Robustez de matching y alertas
 
 Esta version agrega casos borde en pruebas para dejar mas estable el modulo antes de integrar nuevos microservicios.
