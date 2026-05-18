@@ -15,10 +15,19 @@ interface NotificacionSimulada {
 
 const notificacionesSimuladas: NotificacionSimulada[] = [];
 
+interface CrearNotificacionOptions {
+  registrarLog?: boolean;
+}
+
 /**
  * Crea una notificacion de coincidencia basada en el puntaje del motor.
  */
-export const crearNotificacionMatch = (usuarioId: string, mascotaNombre: string, puntaje: number) => {
+export const crearNotificacionMatch = (
+  usuarioId: string,
+  mascotaNombre: string,
+  puntaje: number,
+  options: CrearNotificacionOptions = {},
+) => {
   const nuevaNotificacion: NotificacionSimulada = {
     id:
       typeof crypto !== "undefined" && crypto.randomUUID
@@ -34,7 +43,9 @@ export const crearNotificacionMatch = (usuarioId: string, mascotaNombre: string,
 
   notificacionesSimuladas.push(nuevaNotificacion);
 
-  console.log(`[ServicioNotificaciones] Alerta creada para Usuario ${usuarioId} con score ${puntaje}`);
+  if (options.registrarLog ?? true) {
+    console.log(`[ServicioNotificaciones] Alerta creada para Usuario ${usuarioId} con score ${puntaje}`);
+  }
 
   return nuevaNotificacion;
 };

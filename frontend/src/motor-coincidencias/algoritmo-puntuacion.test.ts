@@ -38,6 +38,10 @@ describe("motor de coincidencias con Strategy Pattern", () => {
     expect(calcularPuntaje(reportePerdido, reporteGato)).toBe(0);
   });
 
+  it("retorna 0 si faltan datos de mascota en el nuevo reporte", () => {
+    expect(calcularPuntaje(reportePerdido, {})).toBe(0);
+  });
+
   it("retorna 100 cuando todos los criterios coinciden", () => {
     const avistamiento = {
       mascota: {
@@ -67,6 +71,22 @@ describe("motor de coincidencias con Strategy Pattern", () => {
     expect(estrategiaColor.calcular(reportePerdido, avistamiento)).toBe(20);
     expect(estrategiaUbicacion.calcular(reportePerdido, avistamiento)).toBe(15);
     expect(estrategiaFecha.calcular(reportePerdido, avistamiento)).toBe(10);
+  });
+
+  it("no suma ubicacion ni fecha si el avistamiento esta lejos y fuera de rango", () => {
+    const avistamiento = {
+      mascota: {
+        especie: "Perro",
+        raza: "Labrador",
+        colorPrimario: "Dorado",
+      },
+      ubicacion: { latitud: -36.826, longitud: -73.0498 },
+      fechaSuceso: "2024-06-15T10:00:00Z",
+    };
+
+    expect(estrategiaUbicacion.calcular(reportePerdido, avistamiento)).toBe(0);
+    expect(estrategiaFecha.calcular(reportePerdido, avistamiento)).toBe(0);
+    expect(calcularPuntaje(reportePerdido, avistamiento)).toBe(50);
   });
 
   it("permite reemplazar estrategias sin cambiar el calculador principal", () => {

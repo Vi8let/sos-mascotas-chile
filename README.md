@@ -4,6 +4,18 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ---
 
+## Version 1.4 - Robustez de matching y alertas
+
+Esta version agrega casos borde en pruebas para dejar mas estable el modulo antes de integrar nuevos microservicios.
+
+### Cambios principales
+
+- Se prueban reportes incompletos, ubicacion lejana y fecha fuera de rango.
+- Se prueban usuarios sin notificaciones y marcado de alertas inexistentes.
+- Se permite silenciar logs del gestor de alertas durante pruebas.
+
+---
+
 ## Version 1.3 - Strategy Pattern y pruebas de matching
 
 Esta version refuerza el motor de coincidencias para que el patron **Strategy** quede aplicado de forma explicita en codigo.
