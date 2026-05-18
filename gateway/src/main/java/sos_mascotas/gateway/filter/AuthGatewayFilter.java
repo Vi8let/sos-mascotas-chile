@@ -2,8 +2,10 @@ package sos_mascotas.gateway.filter;
 
 import java.util.List;
 
-import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.factory.GatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -12,7 +14,7 @@ import reactor.core.publisher.Mono;
 import sos_mascotas.gateway.util.JwtUtil;
 
 @Component
-public class AuthGatewayFilter implements GatewayFilterFactory<Object> {
+public class AuthGatewayFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
 
@@ -25,25 +27,29 @@ public class AuthGatewayFilter implements GatewayFilterFactory<Object> {
             "/api/auth/login");
 
     @Override
-    public GatewayFilter apply(Object config) {
-        return (exchange, chain) -> {
-            String path = exchange.getRequest().getPath().toString();
-            if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
-                return chain.filter(exchange);
-            }
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String path = exchange.getRequest().getPath().toString();
+        if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS
+                || PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+            return chain.filter(exchange);
+        }
 
-            String header = exchange.getRequest().getHeaders().getFirst("Authorization");
-            if (header == null || !header.startsWith("Bearer ")) {
-                return reject(exchange, HttpStatus.UNAUTHORIZED);
-            }
+        String header = exchange.getRequest().getHeaders().getFirst("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            return reject(exchange, HttpStatus.UNAUTHORIZED);
+        }
 
-            try {
-                jwtUtil.extractEmail(header.substring(7));
-                return chain.filter(exchange);
-            } catch (Exception e) {
-                return reject(exchange, HttpStatus.UNAUTHORIZED);
-            }
-        };
+        try {
+            jwtUtil.extractEmail(header.substring(7));
+            return chain.filter(exchange);
+        } catch (Exception e) {
+            return reject(exchange, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Override
+    public int getOrder() {
+        return -1;
     }
 
     private Mono<Void> reject(ServerWebExchange ex, HttpStatus status) {

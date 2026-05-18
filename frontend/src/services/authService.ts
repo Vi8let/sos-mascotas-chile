@@ -2,10 +2,10 @@
 
 /**
  * SERVICIO DE AUTENTICACION REAL (Conexion con Spring Boot)
- * Este servicio conecta el frontend con el backend en http://localhost:8081
+ * Este servicio conecta el frontend con el API Gateway usando el proxy /api de Vite.
  */
 
-const API_BASE_URL = "http://localhost:8081/api/auth";
+const API_BASE_URL = "/api/auth";
 
 export interface AuthResponse {
   token: string;
