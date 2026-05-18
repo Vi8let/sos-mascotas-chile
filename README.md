@@ -6,18 +6,18 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ## Version 1.5 - Cierre de integracion para agregar microservicios
 
-Esta version deja la rama `Develop` preparada para que el equipo conecte o agregue nuevos microservicios sobre una base estable.
+Deje esta parte lista para que el equipo pueda seguir agregando microservicios sin mezclar el trabajo del motor de coincidencias con otras tareas.
 
-### Estado listo para continuar
+### Estado actual
 
-- Frontend conectado al backend de autenticacion en `http://localhost:8081/api/auth`.
-- Motor de coincidencias separado por estrategias y cubierto con pruebas unitarias.
-- Servicio de alertas simulado con pruebas de prioridad, lectura y usuarios sin notificaciones.
-- Simulacion de flujo disponible en `frontend/src/prueba-integracion-jordan.ts`.
+- El frontend ya apunta al backend de autenticacion en `http://localhost:8081/api/auth`.
+- El motor de coincidencias quedo separado por estrategias.
+- Las alertas siguen siendo simuladas, pero ya tienen pruebas de prioridad, lectura y usuarios sin notificaciones.
+- La simulacion completa sigue en `frontend/src/prueba-integracion-jordan.ts`.
 
-### Siguiente integracion esperada
+### Archivos utiles para seguir
 
-Los proximos microservicios pueden conectarse usando como referencia:
+Para agregar nuevos microservicios, estos archivos sirven como punto de partida:
 
 - `frontend/src/contrato-eventos.md`
 - `frontend/src/motor-coincidencias/algoritmo-puntuacion.ts`
@@ -28,26 +28,29 @@ Los proximos microservicios pueden conectarse usando como referencia:
 
 ## Version 1.4 - Robustez de matching y alertas
 
-Esta version agrega casos borde en pruebas para dejar mas estable el modulo antes de integrar nuevos microservicios.
+Agregue mas pruebas para cubrir casos que podrian pasar cuando el motor reciba datos incompletos o poco claros.
 
 ### Cambios principales
 
-- Se prueban reportes incompletos, ubicacion lejana y fecha fuera de rango.
-- Se prueban usuarios sin notificaciones y marcado de alertas inexistentes.
-- Se permite silenciar logs del gestor de alertas durante pruebas.
+- Reportes incompletos.
+- Ubicacion lejana.
+- Fecha fuera de rango.
+- Usuarios sin notificaciones.
+- Alertas inexistentes al marcar como leida.
+- Logs del gestor silenciados durante pruebas.
 
 ---
 
 ## Version 1.3 - Strategy Pattern y pruebas de matching
 
-Esta version refuerza el motor de coincidencias para que el patron **Strategy** quede aplicado de forma explicita en codigo.
+Separe el motor de coincidencias para que el patron **Strategy** quedara mas claro en el codigo.
 
 ### Cambios principales
 
-- Se separa el calculo de coincidencias en estrategias de raza, color, ubicacion y fecha.
-- Se mantiene la especie como filtro obligatorio antes de calcular el puntaje.
-- Se agregan pruebas unitarias para el motor de coincidencias.
-- Se agregan pruebas unitarias para el servicio de notificaciones.
+- El calculo ahora usa estrategias de raza, color, ubicacion y fecha.
+- La especie queda como filtro obligatorio.
+- Se agregaron pruebas del motor de coincidencias.
+- Se agregaron pruebas del servicio de notificaciones.
 
 ### Evidencia tecnica
 
@@ -60,14 +63,14 @@ Esta version refuerza el motor de coincidencias para que el patron **Strategy** 
 
 ## Version 1.2 - Configuracion e integracion corregida
 
-Esta version ajusta detalles tecnicos de la integracion inicial para que el frontend, backend y documentacion apunten al mismo flujo.
+Corregi detalles de la integracion inicial para que el frontend y el backend quedaran apuntando al mismo flujo.
 
 ### Cambios principales
 
-- Se alinea el servicio de autenticacion del frontend con el puerto real del backend: `8081`.
-- Se limpian textos rotos por codificacion en los archivos principales de integracion.
-- Se mantienen los mensajes de la simulacion en formato ASCII para evitar problemas de visualizacion.
-- Se actualiza la documentacion para reflejar la configuracion actual.
+- El servicio de autenticacion del frontend apunta al puerto real del backend: `8081`.
+- Limpie textos rotos por codificacion en los archivos principales de integracion.
+- Deje los mensajes de la simulacion en ASCII para evitar problemas de visualizacion.
+- Actualice el README con la configuracion actual.
 
 ### Configuracion actual de servicios
 
@@ -93,7 +96,7 @@ http://localhost:8081/api/auth
 
 ## Version 1.1 - Documentacion de integracion inicial
 
-Esta version ordena la documentacion de la rama `Develop` para dejar claro que contiene la integracion actual del proyecto y como se relacionan sus partes principales.
+Ordene el README de la rama `Develop` para explicar que contiene la primera integracion del proyecto.
 
 ### Que contiene esta version
 
@@ -114,7 +117,7 @@ sos-mascotas-chile/
 
 ### Frontend
 
-El frontend contiene las pantallas, componentes y servicios necesarios para la experiencia de usuario.
+El frontend contiene las pantallas, componentes y servicios principales de la app.
 
 Carpetas principales:
 
@@ -127,7 +130,7 @@ Carpetas principales:
 
 ### Backend
 
-El backend contiene la base de autenticacion y usuarios usando Spring Boot.
+El backend contiene la base de autenticacion y usuarios en Spring Boot.
 
 Carpetas principales:
 
@@ -140,7 +143,7 @@ Carpetas principales:
 
 ### Flujo de autenticacion
 
-El registro y login funcionan mediante comunicacion REST entre frontend y backend.
+El registro y login funcionan con comunicacion REST entre frontend y backend.
 
 ```text
 Formulario frontend
@@ -153,7 +156,7 @@ Formulario frontend
 -> Sesion guardada en frontend
 ```
 
-El frontend guarda el token JWT y el correo del usuario en `localStorage`. Con eso puede mantener la sesion y proteger rutas privadas.
+El frontend guarda el token JWT y el correo del usuario en `localStorage`. Con eso mantiene la sesion y protege rutas privadas.
 
 ### Flujo de coincidencias y alertas
 
@@ -167,7 +170,7 @@ El motor de coincidencias compara reportes de mascotas usando criterios simples:
 
 La especie funciona como filtro obligatorio. Si no coincide, el puntaje queda en `0`. Si coincide, se suman puntos por raza, color, cercania geografica y cercania de fecha.
 
-Cuando el puntaje supera el umbral definido en la simulacion, el servicio de notificaciones crea una alerta para el usuario.
+Cuando el puntaje supera el umbral de la simulacion, el servicio de notificaciones crea una alerta para el usuario.
 
 ```text
 Reporte nuevo o avistamiento
@@ -194,7 +197,7 @@ Reporte nuevo o avistamiento
 
 ## Version 1.0 - Conexion unificada
 
-Este hito registra la primera integracion funcional de los tres pilares del proyecto:
+Este hito registra la primera integracion funcional de las partes que unimos:
 
 - Frontend de la aplicacion.
 - Backend de autenticacion.
