@@ -55,3 +55,7 @@ export const marcarLeida = (id: string) => {
     notificacionesSimuladas[index].leida = true;
   }
 };
+
+export const limpiarNotificacionesSimuladas = () => {
+  notificacionesSimuladas.length = 0;
+};

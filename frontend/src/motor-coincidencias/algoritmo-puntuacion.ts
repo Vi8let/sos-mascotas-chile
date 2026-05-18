@@ -22,58 +22,99 @@ export interface ReporteMascota {
   fechaSuceso: string;
 }
 
+export interface EstrategiaCoincidencia {
+  nombre: string;
+  puntajeMaximo: number;
+  calcular: (reporteExistente: ReporteMascota, nuevoReporte: Partial<ReporteMascota>) => number;
+}
+
+const normalizar = (valor?: string) => valor?.trim().toLowerCase() ?? "";
+
+export const cumpleFiltroEspecie = (
+  reporteExistente: ReporteMascota,
+  nuevoReporte: Partial<ReporteMascota>,
+): boolean => {
+  const especieExistente = normalizar(reporteExistente.mascota?.especie);
+  const especieNueva = normalizar(nuevoReporte.mascota?.especie);
+  return Boolean(especieExistente && especieNueva && especieExistente === especieNueva);
+};
+
+export const estrategiaRaza: EstrategiaCoincidencia = {
+  nombre: "raza",
+  puntajeMaximo: 30,
+  calcular: (reporteExistente, nuevoReporte) => {
+    const razaExistente = normalizar(reporteExistente.mascota?.raza);
+    const razaNueva = normalizar(nuevoReporte.mascota?.raza);
+
+    if (!razaExistente || !razaNueva) return 0;
+    if (razaExistente === razaNueva) return 30;
+    if (razaExistente === "desconocida" || razaNueva === "desconocida") return 10;
+
+    return 0;
+  },
+};
+
+export const estrategiaColor: EstrategiaCoincidencia = {
+  nombre: "color",
+  puntajeMaximo: 20,
+  calcular: (reporteExistente, nuevoReporte) => {
+    const colorExistente = normalizar(reporteExistente.mascota?.colorPrimario);
+    const colorNuevo = normalizar(nuevoReporte.mascota?.colorPrimario);
+
+    return colorExistente && colorNuevo && colorExistente === colorNuevo ? 20 : 0;
+  },
+};
+
+export const estrategiaUbicacion: EstrategiaCoincidencia = {
+  nombre: "ubicacion",
+  puntajeMaximo: 30,
+  calcular: (reporteExistente, nuevoReporte) => {
+    if (!reporteExistente.ubicacion || !nuevoReporte.ubicacion) return 0;
+
+    const distancia = calcularDistanciaKM(reporteExistente.ubicacion, nuevoReporte.ubicacion);
+    if (distancia <= 2) return 30;
+    if (distancia <= 5) return 15;
+
+    return 0;
+  },
+};
+
+export const estrategiaFecha: EstrategiaCoincidencia = {
+  nombre: "fecha",
+  puntajeMaximo: 20,
+  calcular: (reporteExistente, nuevoReporte) => {
+    if (!nuevoReporte.fechaSuceso) return 0;
+
+    const dias = calcularDiferenciaDias(reporteExistente.fechaSuceso, nuevoReporte.fechaSuceso);
+    if (dias <= 2) return 20;
+    if (dias <= 7) return 10;
+
+    return 0;
+  },
+};
+
+export const estrategiasCoincidencia: EstrategiaCoincidencia[] = [
+  estrategiaRaza,
+  estrategiaColor,
+  estrategiaUbicacion,
+  estrategiaFecha,
+];
+
 /**
  * Calcula el puntaje de coincidencia entre dos reportes de mascotas.
  * @param reporteExistente - Reporte de mascota ya en la base de datos.
  * @param nuevoReporte - Nuevo reporte entrante a comparar.
  * @returns Score de 0 a 100.
  */
-export const calcularPuntaje = (reporteExistente: ReporteMascota, nuevoReporte: Partial<ReporteMascota>): number => {
-  let score = 0;
+export const calcularPuntaje = (
+  reporteExistente: ReporteMascota,
+  nuevoReporte: Partial<ReporteMascota>,
+  estrategias: EstrategiaCoincidencia[] = estrategiasCoincidencia,
+): number => {
+  if (!reporteExistente.mascota || !nuevoReporte.mascota) return 0;
+  if (!cumpleFiltroEspecie(reporteExistente, nuevoReporte)) return 0;
 
-  const m1 = reporteExistente.mascota;
-  const m2 = nuevoReporte.mascota;
-
-  if (!m1 || !m2) return 0;
-
-  // 1. Filtro obligatorio: especie.
-  if (m1.especie.toLowerCase() !== m2.especie.toLowerCase()) {
-    return 0;
-  }
-
-  // 2. Raza: 30 puntos.
-  if (m1.raza.toLowerCase() === m2.raza.toLowerCase()) {
-    score += 30;
-  } else if (m1.raza.toLowerCase() === "desconocida" || m2.raza.toLowerCase() === "desconocida") {
-    score += 10;
-  }
-
-  // 3. Color primario: 20 puntos.
-  if (m1.colorPrimario.toLowerCase() === m2.colorPrimario.toLowerCase()) {
-    score += 20;
-  }
-
-  // 4. Ubicacion: 30 puntos.
-  if (reporteExistente.ubicacion && nuevoReporte.ubicacion) {
-    const distancia = calcularDistanciaKM(reporteExistente.ubicacion, nuevoReporte.ubicacion);
-    if (distancia <= 2) {
-      score += 30;
-    } else if (distancia <= 5) {
-      score += 15;
-    }
-  }
-
-  // 5. Fecha: 20 puntos.
-  if (nuevoReporte.fechaSuceso) {
-    const dias = calcularDiferenciaDias(reporteExistente.fechaSuceso, nuevoReporte.fechaSuceso);
-    if (dias <= 2) {
-      score += 20;
-    } else if (dias <= 7) {
-      score += 10;
-    }
-  }
-
-  return score;
+  return estrategias.reduce((total, estrategia) => total + estrategia.calcular(reporteExistente, nuevoReporte), 0);
 };
 
 /**

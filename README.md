@@ -4,6 +4,26 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ---
 
+## Version 1.3 - Strategy Pattern y pruebas de matching
+
+Esta version refuerza el motor de coincidencias para que el patron **Strategy** quede aplicado de forma explicita en codigo.
+
+### Cambios principales
+
+- Se separa el calculo de coincidencias en estrategias de raza, color, ubicacion y fecha.
+- Se mantiene la especie como filtro obligatorio antes de calcular el puntaje.
+- Se agregan pruebas unitarias para el motor de coincidencias.
+- Se agregan pruebas unitarias para el servicio de notificaciones.
+
+### Evidencia tecnica
+
+- `frontend/src/motor-coincidencias/algoritmo-puntuacion.ts`
+- `frontend/src/motor-coincidencias/algoritmo-puntuacion.test.ts`
+- `frontend/src/servicio-notificaciones/gestor-alertas.ts`
+- `frontend/src/servicio-notificaciones/gestor-alertas.test.ts`
+
+---
+
 ## Version 1.2 - Configuracion e integracion corregida
 
 Esta version ajusta detalles tecnicos de la integracion inicial para que el frontend, backend y documentacion apunten al mismo flujo.
