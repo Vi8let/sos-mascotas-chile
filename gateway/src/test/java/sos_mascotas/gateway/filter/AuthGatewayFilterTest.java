@@ -41,6 +41,16 @@ class AuthGatewayFilterTest {
     }
 
     @Test
+    void rejectsPostCreateReportWithoutBearerToken() {
+        var exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/api/reports").build());
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        verify(chain, never()).filter(exchange);
+    }
+
+    @Test
     void allowsProtectedRouteWithValidBearerToken() {
         var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/api/reports")
                 .header("Authorization", "Bearer valid-token")

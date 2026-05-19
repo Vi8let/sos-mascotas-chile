@@ -1,51 +1,44 @@
 {
   "info": {
     "name": "SOS Mascotas Chile API",
-    "description": "Pruebas de endpoints para Auth y Reports.",
+    "description": "Coleccion para verificar auth, gateway (401 sin token) y creacion de reportes.\n\nImportar junto con `sos_mascotas_chile_postman_environment.json`.\n\nPre-requisitos: gateway (9000), backend (8090) y report-service (8091) en ejecucion.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Auth",
+      "name": "Flujo de verificacion (rubrica)",
+      "description": "Ejecutar en orden: registro, login, 401 sin token, crear reporte con token.",
       "item": [
         {
-          "name": "Register",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"nombre\": \"Usuario de Prueba\",\r\n  \"email\": \"prueba@correo.com\",\r\n  \"password\": \"123456\",\r\n  \"telefono\": \"+56912345678\"\r\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/auth/register",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Login",
+          "name": "1. Register",
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const email = `postman_${Date.now()}@test.cl`;",
+                  "pm.environment.set('test_email', email);"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "var jsonData = pm.response.json();",
-                  "pm.environment.set(\"token\", jsonData.token);"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Respuesta incluye token, email y role USER', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.email).to.eql(pm.environment.get('test_email'));",
+                  "    pm.expect(json.role).to.eql('USER');",
+                  "    pm.environment.set('token', json.token);",
+                  "});"
+                ]
               }
             }
           ],
@@ -59,121 +52,115 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"prueba@correo.com\",\r\n  \"password\": \"123456\"\r\n}"
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\",\n  \"nombre\": \"Usuario Postman\",\n  \"telefono\": \"+56912345678\"\n}"
             },
-            "url": {
-              "raw": "{{base_url}}/api/auth/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            }
+            "url": "{{base_url}}/api/auth/register"
           }
         },
         {
-          "name": "Validate Token",
+          "name": "2. Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Login devuelve JWT y persiste token', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.email).to.eql(pm.environment.get('test_email'));",
+                  "    pm.expect(json.role).to.eql('USER');",
+                  "    pm.environment.set('token', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
-            "url": {
-              "raw": "{{base_url}}/api/auth/validate",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "validate"
-              ]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
           }
         },
         {
-          "name": "Get Me",
+          "name": "7. Create Report - 401 sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Gateway bloquea POST /api/reports sin Authorization (401)', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
-            "url": {
-              "raw": "{{base_url}}/api/auth/me",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "me"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Reports",
-      "item": [
-        {
-          "name": "List Reports",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/reports",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "reports"
-              ],
-              "query": [
-                {
-                  "key": "tipo",
-                  "value": "ANIMAL_PERDIDO",
-                  "disabled": true
-                },
-                {
-                  "key": "q",
-                  "value": "perro",
-                  "disabled": true
-                }
-              ]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Intento sin token\",\n  \"tipo\": \"ANIMAL_PERDIDO\",\n  \"descripcion\": \"Debe ser rechazado por el gateway.\",\n  \"ubicacion\": \"Santiago\",\n  \"imagenUrl\": null,\n  \"contacto\": \"+56900000000\"\n}"
+            },
+            "url": "{{base_url}}/api/reports"
           }
         },
         {
-          "name": "Get Report By ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/reports/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "reports",
-                "1"
-              ]
+          "name": "8. Create Report - con token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const token = pm.environment.get('token');",
+                  "pm.test('Precondicion: token obtenido en login o registro', function () {",
+                  "    pm.expect(token, 'Ejecutar Register y Login antes').to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Reporte creado con titulo y autor', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.id).to.be.a('number');",
+                  "    pm.expect(json.titulo).to.eql('Perrito perdido en plaza');",
+                  "    pm.expect(json.tipo).to.eql('ANIMAL_PERDIDO');",
+                  "    pm.expect(json.autorNombre).to.be.a('string').and.not.empty;",
+                  "    pm.environment.set('report_id', String(json.id));",
+                  "});"
+                ]
+              }
             }
-          }
-        },
-        {
-          "name": "Create Report",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -188,18 +175,105 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"titulo\": \"Perrito perdido en plaza\",\r\n  \"descripcion\": \"Perrito negro, tamaño mediano, con collar rojo.\",\r\n  \"ubicacion\": \"Plaza de Armas\",\r\n  \"tipo\": \"ANIMAL_PERDIDO\",\r\n  \"fotoUrl\": \"https://ejemplo.com/foto.jpg\"\r\n}"
+              "raw": "{\n  \"titulo\": \"Perrito perdido en plaza\",\n  \"tipo\": \"ANIMAL_PERDIDO\",\n  \"descripcion\": \"Perrito negro, tamano mediano, con collar rojo.\",\n  \"ubicacion\": \"Plaza de Armas, Santiago\",\n  \"imagenUrl\": \"https://ejemplo.com/foto.jpg\",\n  \"contacto\": \"+56912345678\"\n}"
             },
+            "url": "{{base_url}}/api/reports"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth (referencia)",
+      "item": [
+        {
+          "name": "Validate Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Token valido devuelve datos de usuario', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.id).to.be.a('number');",
+                  "    pm.expect(json.email).to.eql(pm.environment.get('test_email'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/auth/validate"
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports (referencia)",
+      "item": [
+        {
+          "name": "List Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{base_url}}/api/reports",
+              "raw": "{{base_url}}/api/reports?tipo=ANIMAL_PERDIDO",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "reports"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "ANIMAL_PERDIDO"
+                }
               ]
             }
+          }
+        },
+        {
+          "name": "Get Report By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/reports/{{report_id}}"
           }
         },
         {
@@ -213,14 +287,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/reports/1/estado?estado=ENCONTRADO",
+              "raw": "{{base_url}}/api/reports/{{report_id}}/estado?estado=ENCONTRADO",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "reports",
-                "1",
+                "{{report_id}}",
                 "estado"
               ],
               "query": [
@@ -242,26 +316,10 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": {
-              "raw": "{{base_url}}/api/reports/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "reports",
-                "1"
-              ]
-            }
+            "url": "{{base_url}}/api/reports/{{report_id}}"
           }
         }
       ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:9000"
     }
   ]
 }

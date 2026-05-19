@@ -72,6 +72,13 @@ Report service:     http://localhost:8091
 
 ### Pruebas verificadas
 
+Guia completa (unitarias + Postman): **[docs/PRUEBAS.md](docs/PRUEBAS.md)**
+
+Archivos Postman en la raiz:
+
+- `sos_mascotas_chile_postman_collection.json`
+- `sos_mascotas_chile_postman_environment.json`
+
 ```powershell
 cd backend
 .\mvnw.cmd test
@@ -83,19 +90,18 @@ cd ..\report-service
 .\mvnw.cmd test
 
 cd ..\frontend
-npm test -- --run
+npm install
+npm test
 npm run build
 ```
 
-Resultado verificado:
+Resultado esperado:
 
-- Backend auth/users: 2 tests OK.
-- Report service: 1 test OK.
-- Gateway: 3 tests OK.
+- Backend auth/users: 3 tests OK (contexto + registro + login).
+- Report service: 2 tests OK.
+- Gateway: 4 tests OK (incluye `POST /api/reports` sin token → 401).
 - Frontend: 12 tests OK.
-- Frontend build: OK, con advertencia normal de chunk grande de Vite.
-- Prueba manual por Gateway: registro, login, bloqueo de `/api/reports` sin token y creacion de reporte con token.
-- Prueba visual frontend: carga inicial, registro con toast de exito y login con navegacion autenticada.
+- Postman (carpeta «Flujo de verificacion»): Register, Login, 401 sin token, crear reporte con token.
 
 ### Evidencia de version
 

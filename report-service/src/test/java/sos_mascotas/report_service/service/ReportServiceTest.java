@@ -1,9 +1,12 @@
 package sos_mascotas.report_service.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,5 +46,14 @@ class ReportServiceTest {
         assertThat(captor.getValue().getAutorId()).isEqualTo(7L);
         assertThat(response.titulo()).isEqualTo("Mascota perdida");
         assertThat(response.autorNombre()).isEqualTo("usuario-7");
+    }
+
+    @Test
+    void getByIdThrowsWhenReportDoesNotExist() {
+        when(reportRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> reportService.getById(99L))
+                .isInstanceOf(java.util.NoSuchElementException.class)
+                .hasMessageContaining("Reporte no encontrado");
     }
 }

@@ -5,11 +5,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import sos_mascotas.backend.DTO.LoginRequest;
 import sos_mascotas.backend.DTO.RegisterRequest;
 import sos_mascotas.backend.config.JwtUtil;
 import sos_mascotas.backend.model.Role;
@@ -52,6 +56,24 @@ class AuthServiceTest {
         assertThat(savedUser.getTelefono()).isEqualTo("+56912345678");
         assertThat(savedUser.getRole()).isEqualTo(Role.USER);
         assertThat(response.token()).isEqualTo("jwt-token");
+        assertThat(response.email()).isEqualTo("persona@test.cl");
+        assertThat(response.role()).isEqualTo("USER");
+    }
+
+    @Test
+    void loginReturnsJwtAfterSuccessfulAuthentication() {
+        var request = new LoginRequest("persona@test.cl", "Password123");
+        User user = new User();
+        user.setEmail("persona@test.cl");
+        user.setRole(Role.USER);
+
+        when(userRepository.findByEmail("persona@test.cl")).thenReturn(Optional.of(user));
+        when(jwtUtil.generate(user)).thenReturn("jwt-login-token");
+
+        var response = authService.login(request);
+
+        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        assertThat(response.token()).isEqualTo("jwt-login-token");
         assertThat(response.email()).isEqualTo("persona@test.cl");
         assertThat(response.role()).isEqualTo("USER");
     }
