@@ -102,6 +102,7 @@ Resultado verificado:
 - Se corrigio CORS para el frontend local.
 - Se agregaron pruebas basicas para `ReportService` y `AuthGatewayFilter`.
 - Se elimino `gateway/target` del control de versiones y se agrego `target` a `.gitignore`.
+- Se retiraron archivos heredados de Supabase para mantener la linea de `Develop` sin esa dependencia.
 
 ### Archivos utiles para seguir
 
