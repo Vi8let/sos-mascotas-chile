@@ -1,4 +1,4 @@
-package sos_mascotas.backend.service;
+package sos_mascotas.report_service.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import sos_mascotas.backend.DTO.CreateReportRequest;
-import sos_mascotas.backend.DTO.UserInfoResponse;
-import sos_mascotas.backend.config.UserServiceClient;
-import sos_mascotas.backend.model.Report;
-import sos_mascotas.backend.model.TipoReporte;
-import sos_mascotas.backend.repository.ReportRepository;
+import sos_mascotas.report_service.DTO.CreateReportRequest;
+import sos_mascotas.report_service.DTO.UserInfoResponse;
+import sos_mascotas.report_service.config.UserServiceClient;
+import sos_mascotas.report_service.model.Report;
+import sos_mascotas.report_service.model.TipoReporte;
+import sos_mascotas.report_service.repository.ReportRepository;
 
 class ReportServiceTest {
 

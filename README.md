@@ -4,17 +4,18 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ---
 
-## Version 1.6 - Avance Guerben: Gateway y reportes
+## Version 1.7 - BFF/API Gateway y dos microservicios
 
-Esta version integra el avance de la rama `Guerben-dev` sobre la base preparada en `v1.5`.
+Esta version deja la arquitectura alineada con la rubrica: frontend, un BFF/API Gateway y dos microservicios backend separados.
 
 ### Estado actual
 
-- El proyecto tiene tres partes ejecutables: `frontend`, `backend` y `gateway`.
-- El `gateway` corre en `http://localhost:9000` y actua como API Gateway.
-- El `backend` corre en `http://localhost:8090` y mantiene autenticacion, usuarios y reportes.
+- El proyecto tiene cuatro partes ejecutables: `frontend`, `gateway`, `backend` y `report-service`.
+- El `gateway` corre en `http://localhost:9000` y actua como BFF/API Gateway.
+- El `backend` corre en `http://localhost:8090` y funciona como microservicio de usuarios/autenticacion.
+- El `report-service` corre en `http://localhost:8091` y funciona como microservicio de reportes.
 - El frontend corre en `http://localhost:8080` y usa el proxy `/api` de Vite para pasar por el Gateway.
-- El modulo de reportes expone endpoints bajo `/api/reports`.
+- Los reportes se exponen bajo `/api/reports`, pero el frontend no llama directo al microservicio: entra por el Gateway.
 - Las alertas y el motor de coincidencias siguen en frontend como modulos simulados/probados.
 
 ### Arquitectura local
@@ -22,21 +23,30 @@ Esta version integra el avance de la rama `Guerben-dev` sobre la base preparada 
 ```text
 Frontend (8080)
 -> Vite proxy /api
--> API Gateway (9000)
--> Backend principal (8090)
--> SQLite db/sos_mascotas.db
+-> BFF/API Gateway (9000)
+   -> user-service/backend (8090)
+      -> SQLite backend/db/sos_mascotas.db
+   -> report-service (8091)
+      -> SQLite report-service/db/report_service.db
 ```
 
 ### Como ejecutar
 
-Backend:
+Microservicio de usuarios/autenticacion:
 
 ```powershell
 cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
-Gateway:
+Microservicio de reportes:
+
+```powershell
+cd report-service
+.\mvnw.cmd spring-boot:run
+```
+
+BFF/API Gateway:
 
 ```powershell
 cd gateway
@@ -56,7 +66,8 @@ URLs:
 ```text
 Frontend: http://localhost:8080
 Gateway:  http://localhost:9000
-Backend:  http://localhost:8090
+Backend auth/users: http://localhost:8090
+Report service:     http://localhost:8091
 ```
 
 ### Pruebas verificadas
@@ -68,6 +79,9 @@ cd backend
 cd ..\gateway
 ..\backend\mvnw.cmd test
 
+cd ..\report-service
+.\mvnw.cmd test
+
 cd ..\frontend
 npm test -- --run
 npm run build
@@ -75,7 +89,8 @@ npm run build
 
 Resultado verificado:
 
-- Backend: 2 tests OK.
+- Backend auth/users: 2 tests OK.
+- Report service: 1 test OK.
 - Gateway: 3 tests OK.
 - Frontend: 12 tests OK.
 - Frontend build: OK, con advertencia normal de chunk grande de Vite.
@@ -84,11 +99,43 @@ Resultado verificado:
 
 ### Evidencia de version
 
-- Rama de trabajo local: `fix/guerben-dev-integracion`.
+- Rama final integrada: `Develop`.
 - Rama base revisada: `origin/Guerben-dev`.
-- Commit de integracion: `fix: integra gateway y reportes de Guerben` en la punta de la rama local.
-- Tag local: `v1.6-avance-guerben-microservicios`.
+- Tag publicado anterior: `v1.6-avance-guerben-microservicios`.
+- Tag propuesto para este avance: `v1.7-bff-dos-microservicios`.
 - Tag anterior de referencia: `v1.5-cierre-integracion-microservicios`.
+
+### Cambios principales
+
+- Se separo `report-service/` como microservicio independiente para reportes.
+- Se dejo `backend/` enfocado en usuarios, autenticacion, JWT y validacion de token.
+- Se actualizo el Gateway para enrutar `/api/auth/**` a `8090` y `/api/reports/**` a `8091`.
+- Se sincronizo el secreto JWT entre backend y Gateway.
+- Se corrigio CORS para el frontend local.
+- Se mantuvieron pruebas basicas para backend, gateway, report-service y frontend.
+
+### Archivos utiles para seguir
+
+- `frontend/src/contrato-eventos.md`
+- `frontend/src/motor-coincidencias/algoritmo-puntuacion.ts`
+- `frontend/src/servicio-notificaciones/gestor-alertas.ts`
+- `backend/src/main/java/sos_mascotas/backend/controller/AuthController.java`
+- `report-service/src/main/java/sos_mascotas/report_service/controller/ReportController.java`
+- `gateway/src/main/resources/application.yml`
+
+---
+
+## Version 1.6 - Avance Guerben: Gateway y reportes
+
+Esta version integra el avance de la rama `Guerben-dev` sobre la base preparada en `v1.5`.
+
+### Estado de esa version
+
+- El proyecto tenia tres partes ejecutables: `frontend`, `backend` y `gateway`.
+- El `gateway` corria en `http://localhost:9000` y actuaba como API Gateway.
+- El `backend` corria en `http://localhost:8090` y mantenia autenticacion, usuarios y reportes.
+- El frontend corria en `http://localhost:8080` y usaba el proxy `/api` de Vite para pasar por el Gateway.
+- El modulo de reportes exponia endpoints bajo `/api/reports`.
 
 ### Cambios integrados desde Guerben-dev
 
@@ -103,15 +150,6 @@ Resultado verificado:
 - Se agregaron pruebas basicas para `ReportService` y `AuthGatewayFilter`.
 - Se elimino `gateway/target` del control de versiones y se agrego `target` a `.gitignore`.
 - Se retiraron archivos heredados de Supabase para mantener la linea de `Develop` sin esa dependencia.
-
-### Archivos utiles para seguir
-
-- `frontend/src/contrato-eventos.md`
-- `frontend/src/motor-coincidencias/algoritmo-puntuacion.ts`
-- `frontend/src/servicio-notificaciones/gestor-alertas.ts`
-- `backend/src/main/java/sos_mascotas/backend/controller/AuthController.java`
-- `backend/src/main/java/sos_mascotas/backend/controller/ReportController.java`
-- `gateway/src/main/resources/application.yml`
 
 ---
 
