@@ -4,6 +4,26 @@ Plataforma comunitaria para ayudar a reencontrar mascotas perdidas con sus famil
 
 ---
 
+## Version 1.8 - Cierre entrega parcial 2
+
+Esta version cierra la entrega con documentacion de ejecucion mas clara, cuenta de prueba local y conexion basica del frontend al `report-service` mediante el Gateway.
+
+### Cambios principales
+
+- Se agrego una cuenta de prueba creada automaticamente al iniciar el backend: `test@gmail.com` / `Duoc1234`.
+- Se conecto `frontend/src/services/reportService.ts` a `/api/reports` usando el proxy `/api` y el Gateway.
+- Se corrigio el README del backend para reflejar que ahora es el microservicio de usuarios/autenticacion.
+- Se agrego README propio para `report-service`.
+- Se actualizaron las instrucciones de ejecucion local por terminal.
+
+### Evidencia de version
+
+- Rama de integracion: `Develop`.
+- Tag final propuesto: `v1.8-cierre-entrega-parcial-2`.
+- Base tecnica anterior: `v1.7-bff-dos-microservicios`.
+
+---
+
 ## Version 1.7 - BFF/API Gateway y dos microservicios
 
 Esta version deja la arquitectura alineada con la rubrica: frontend, un BFF/API Gateway y dos microservicios backend separados.
@@ -32,28 +52,30 @@ Frontend (8080)
 
 ### Como ejecutar
 
-Microservicio de usuarios/autenticacion:
+Abre cuatro terminales desde la carpeta raiz `sos-mascotas-chile`.
+
+En la terminal 1 ejecuta el microservicio de usuarios/autenticacion:
 
 ```powershell
 cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
-Microservicio de reportes:
+En la terminal 2 ejecuta el microservicio de reportes:
 
 ```powershell
 cd report-service
 .\mvnw.cmd spring-boot:run
 ```
 
-BFF/API Gateway:
+En la terminal 3 ejecuta el BFF/API Gateway:
 
 ```powershell
 cd gateway
 ..\backend\mvnw.cmd spring-boot:run
 ```
 
-Frontend:
+En la terminal 4 ejecuta el frontend:
 
 ```powershell
 cd frontend
@@ -69,6 +91,15 @@ Gateway:  http://localhost:9000
 Backend auth/users: http://localhost:8090
 Report service:     http://localhost:8091
 ```
+
+Cuenta de prueba creada automaticamente al iniciar el backend:
+
+```text
+Email: test@gmail.com
+Password: Duoc1234
+```
+
+Si el login o registro no conecta, revisa que el Gateway este activo en `http://localhost:9000`. El frontend usa el proxy `/api` de Vite para enviar `/api/auth` y `/api/reports` al Gateway.
 
 ### Pruebas verificadas
 
