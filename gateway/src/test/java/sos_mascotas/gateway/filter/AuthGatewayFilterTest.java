@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -51,5 +52,33 @@ class AuthGatewayFilterTest {
         filter.filter(exchange, chain).block();
 
         verify(chain).filter(exchange);
+    }
+
+    @Test
+    void rejectsProtectedRouteWhenBearerTokenIsInvalid() {
+        var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/api/reports")
+                .header("Authorization", "Bearer invalid-token")
+                .build());
+        when(jwtUtil.extractEmail("invalid-token")).thenThrow(new IllegalArgumentException("token invalido"));
+
+        filter.filter(exchange, chain).block();
+
+        assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        verify(chain, never()).filter(exchange);
+    }
+
+    @Test
+    void allowsOptionsRequestsWithoutToken() {
+        var exchange = MockServerWebExchange.from(MockServerHttpRequest.method(HttpMethod.OPTIONS, "/api/reports").build());
+        when(chain.filter(exchange)).thenReturn(Mono.empty());
+
+        filter.filter(exchange, chain).block();
+
+        verify(chain).filter(exchange);
+    }
+
+    @Test
+    void hasHighPriorityOrderBeforeRouteFilters() {
+        assertThat(filter.getOrder()).isEqualTo(-1);
     }
 }
