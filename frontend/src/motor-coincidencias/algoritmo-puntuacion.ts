@@ -1,5 +1,7 @@
 /**
  * Definicion de interfaces para el Motor de Coincidencias.
+ * El calculo usa Cadena de Responsabilidad: cada eslabon aporta su puntaje
+ * y delega al siguiente criterio sin mezclar las reglas entre si.
  */
 
 export interface Ubicacion {
@@ -22,13 +24,35 @@ export interface ReporteMascota {
   fechaSuceso: string;
 }
 
-export interface EstrategiaCoincidencia {
+export interface EslabonCoincidencia {
   nombre: string;
   puntajeMaximo: number;
   calcular: (reporteExistente: ReporteMascota, nuevoReporte: Partial<ReporteMascota>) => number;
+  setSiguiente: (siguiente?: EslabonCoincidencia) => EslabonCoincidencia | undefined;
+  manejar: (reporteExistente: ReporteMascota, nuevoReporte: Partial<ReporteMascota>) => number;
 }
 
 const normalizar = (valor?: string) => valor?.trim().toLowerCase() ?? "";
+
+const crearEslabon = (
+  nombre: string,
+  puntajeMaximo: number,
+  calcular: (reporteExistente: ReporteMascota, nuevoReporte: Partial<ReporteMascota>) => number,
+): EslabonCoincidencia => {
+  let siguiente: EslabonCoincidencia | undefined;
+
+  return {
+    nombre,
+    puntajeMaximo,
+    calcular,
+    setSiguiente: (nuevoSiguiente) => {
+      siguiente = nuevoSiguiente;
+      return nuevoSiguiente;
+    },
+    manejar: (reporteExistente, nuevoReporte) =>
+      calcular(reporteExistente, nuevoReporte) + (siguiente?.manejar(reporteExistente, nuevoReporte) ?? 0),
+  };
+};
 
 export const cumpleFiltroEspecie = (
   reporteExistente: ReporteMascota,
@@ -39,10 +63,10 @@ export const cumpleFiltroEspecie = (
   return Boolean(especieExistente && especieNueva && especieExistente === especieNueva);
 };
 
-export const estrategiaRaza: EstrategiaCoincidencia = {
-  nombre: "raza",
-  puntajeMaximo: 30,
-  calcular: (reporteExistente, nuevoReporte) => {
+export const eslabonRaza: EslabonCoincidencia = crearEslabon(
+  "raza",
+  30,
+  (reporteExistente, nuevoReporte) => {
     const razaExistente = normalizar(reporteExistente.mascota?.raza);
     const razaNueva = normalizar(nuevoReporte.mascota?.raza);
 
@@ -52,23 +76,23 @@ export const estrategiaRaza: EstrategiaCoincidencia = {
 
     return 0;
   },
-};
+);
 
-export const estrategiaColor: EstrategiaCoincidencia = {
-  nombre: "color",
-  puntajeMaximo: 20,
-  calcular: (reporteExistente, nuevoReporte) => {
+export const eslabonColor: EslabonCoincidencia = crearEslabon(
+  "color",
+  20,
+  (reporteExistente, nuevoReporte) => {
     const colorExistente = normalizar(reporteExistente.mascota?.colorPrimario);
     const colorNuevo = normalizar(nuevoReporte.mascota?.colorPrimario);
 
     return colorExistente && colorNuevo && colorExistente === colorNuevo ? 20 : 0;
   },
-};
+);
 
-export const estrategiaUbicacion: EstrategiaCoincidencia = {
-  nombre: "ubicacion",
-  puntajeMaximo: 30,
-  calcular: (reporteExistente, nuevoReporte) => {
+export const eslabonUbicacion: EslabonCoincidencia = crearEslabon(
+  "ubicacion",
+  30,
+  (reporteExistente, nuevoReporte) => {
     if (!reporteExistente.ubicacion || !nuevoReporte.ubicacion) return 0;
 
     const distancia = calcularDistanciaKM(reporteExistente.ubicacion, nuevoReporte.ubicacion);
@@ -77,12 +101,12 @@ export const estrategiaUbicacion: EstrategiaCoincidencia = {
 
     return 0;
   },
-};
+);
 
-export const estrategiaFecha: EstrategiaCoincidencia = {
-  nombre: "fecha",
-  puntajeMaximo: 20,
-  calcular: (reporteExistente, nuevoReporte) => {
+export const eslabonFecha: EslabonCoincidencia = crearEslabon(
+  "fecha",
+  20,
+  (reporteExistente, nuevoReporte) => {
     if (!nuevoReporte.fechaSuceso) return 0;
 
     const dias = calcularDiferenciaDias(reporteExistente.fechaSuceso, nuevoReporte.fechaSuceso);
@@ -91,14 +115,29 @@ export const estrategiaFecha: EstrategiaCoincidencia = {
 
     return 0;
   },
-};
+);
 
-export const estrategiasCoincidencia: EstrategiaCoincidencia[] = [
-  estrategiaRaza,
-  estrategiaColor,
-  estrategiaUbicacion,
-  estrategiaFecha,
+export const eslabonesCoincidencia: EslabonCoincidencia[] = [
+  eslabonRaza,
+  eslabonColor,
+  eslabonUbicacion,
+  eslabonFecha,
 ];
+
+export type EstrategiaCoincidencia = EslabonCoincidencia;
+export const estrategiaRaza = eslabonRaza;
+export const estrategiaColor = eslabonColor;
+export const estrategiaUbicacion = eslabonUbicacion;
+export const estrategiaFecha = eslabonFecha;
+export const estrategiasCoincidencia = eslabonesCoincidencia;
+
+export const construirCadenaCoincidencia = (eslabones: EslabonCoincidencia[]): EslabonCoincidencia | undefined => {
+  eslabones.forEach((eslabon, index) => {
+    eslabon.setSiguiente(eslabones[index + 1]);
+  });
+
+  return eslabones[0];
+};
 
 /**
  * Calcula el puntaje de coincidencia entre dos reportes de mascotas.
@@ -109,12 +148,12 @@ export const estrategiasCoincidencia: EstrategiaCoincidencia[] = [
 export const calcularPuntaje = (
   reporteExistente: ReporteMascota,
   nuevoReporte: Partial<ReporteMascota>,
-  estrategias: EstrategiaCoincidencia[] = estrategiasCoincidencia,
+  eslabones: EslabonCoincidencia[] = eslabonesCoincidencia,
 ): number => {
   if (!reporteExistente.mascota || !nuevoReporte.mascota) return 0;
   if (!cumpleFiltroEspecie(reporteExistente, nuevoReporte)) return 0;
 
-  return estrategias.reduce((total, estrategia) => total + estrategia.calcular(reporteExistente, nuevoReporte), 0);
+  return construirCadenaCoincidencia(eslabones)?.manejar(reporteExistente, nuevoReporte) ?? 0;
 };
 
 /**
